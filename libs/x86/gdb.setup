@@ -1,0 +1,6 @@
+set solib-search-path /home/julie/programmes/of_v0.8.4_android_release/examples/android/wallGUI2/obj/local/x86:/home/julie/programmes/of_v0.8.4_android_release/examples/android/wallGUI2/libs/x86
+directory /home/julie/programmes/android-ndk-r9b/platforms/android-17/arch-arm/usr/include
+directory /home/julie/programmes/of_v0.8.4_android_release/examples/android/wallGUI2/src
+directory /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/system
+directory /home/julie/programmes/of_v0.8.4_android_release/examples/android/wallGUI2/libs/x86
+
