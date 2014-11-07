@@ -7,9 +7,9 @@ void ofApp::setup(){
 	
 	font.loadFont("OpenSans-Light.ttf",25);
 	
-	channelsNames[0] = "TEST";
+	/*channelsNames[0] = "CALIBRATION";
 	channelsNames[1] = "MARCEL DUCHAMP";
-	channelsNames[2] = "DEEP THROAD";
+	channelsNames[2] = "DEEP THROAD";*/
 	
 	
 	pageLevel=1;

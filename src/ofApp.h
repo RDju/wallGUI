@@ -55,7 +55,7 @@ public:
 	
 
 	char stringFile[7];
-	char* channelsNames[CHANNELSNUMBER];
+	char* channelsNames[CHANNELSNUMBER] = {"CALIBRATION",  "MARCEL DUCHAMP", "BIG BUCK BUNNY"};;
 	
 	ofTrueTypeFont font;
 	ofImage background;
