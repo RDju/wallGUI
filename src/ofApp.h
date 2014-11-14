@@ -2,21 +2,25 @@
 #include <sstream> 
 #include <cstring> 
 #include <string.h>
+#include <vector>
 #pragma once
 
 #include "ofMain.h"
+#include "Button.h"
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
 
 
-#define HOST "192.168.0.23"
-#define PORT 1234
+#define HOST "192.168.0.11"
+#define PORT 2323
+
+
+#define X_BUTTONS 936 //TODO: en %
+#define Y_BUTTONS 129
 
 #define CHANNELSNUMBER 3
-#define X_CHANNELBUTTONS 936
-#define Y_CHANNELBUTTONS 129
-#define WIDTH_CHANNELBUTTONS 315
-#define HEIGHT_CHANNELBUTTONS 50
+
+
 
 
 
@@ -55,11 +59,13 @@ public:
 	
 
 	char stringFile[7];
-	char* channelsNames[CHANNELSNUMBER] = {"CALIBRATION",  "MARCEL DUCHAMP", "BIG BUCK BUNNY"};;
+	char* channelsNames[CHANNELSNUMBER] = {"CHANNEL 1",  "CHANNEL 2", "CHANNEL 3"};
 	
 	ofTrueTypeFont font;
 	ofImage background;
 	ofSoundPlayer ring;
+	
+	vector<Button*> GUIbuttons;
 
 private:
 	ofxOscSender sender;

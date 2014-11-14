@@ -1,6 +1,7 @@
 obj/android/armv7/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/sstream \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstring \
+ /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/vector \
  ../../../libs/openFrameworks/ofMain.h \
  ../../../libs/openFrameworks/utils/ofConstants.h \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/typeinfo \
@@ -11,7 +12,6 @@ obj/android/armv7/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cmath \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/ctime \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/iostream \
- /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/vector \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/iomanip \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/fstream \
  /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/algorithm \
@@ -180,7 +180,7 @@ obj/android/armv7/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../libs/openFrameworks/video/ofVideoPlayer.h \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
- ../../../libs/openFrameworks/3d/ofEasyCam.h \
+ ../../../libs/openFrameworks/3d/ofEasyCam.h src/Button.h \
  ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
@@ -209,6 +209,8 @@ src/ofApp.h:
 
 /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstring:
 
+/home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/vector:
+
 ../../../libs/openFrameworks/ofMain.h:
 
 ../../../libs/openFrameworks/utils/ofConstants.h:
@@ -228,8 +230,6 @@ src/ofApp.h:
 /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/ctime:
 
 /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/iostream:
-
-/home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/vector:
 
 /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/iomanip:
 
@@ -568,6 +568,8 @@ src/ofApp.h:
 ../../../libs/openFrameworks/3d/ofCamera.h:
 
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
+
+src/Button.h:
 
 ../../../addons/ofxAndroid/src/ofxAndroid.h:
 
