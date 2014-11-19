@@ -11,7 +11,7 @@ class Button{
 		int associatedPages;
 		string activName;
 		string passivName;
-		bool isActiv, isTouched;
+		bool isActiv, isTouched, isAvailable;
 		int ID;
 		ofTrueTypeFont font;
 		
@@ -26,6 +26,7 @@ class Button{
 		pos.set(x, y, 0);
 		isActiv = false;
 		isTouched = false;
+		isAvailable=true;
 		font.loadFont("OpenSans-Light.ttf", 0.033*ofGetHeight());
 	}
 
@@ -34,16 +35,25 @@ class Button{
 	}
 	
 	void draw() {
-		if (isTouched) ofFill();
-		else ofNoFill();
-		//ofSetColor(0,0,0,100);
-		ofRect(pos.x, pos.y, WIDTH_BUTTONS, HEIGHT_BUTTONS);
-		
-		if (isActiv) {
-			 font.drawString(activName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(activName)/2, pos.y+font.getLineHeight());
+	
+		ofPushStyle();
+		if (isAvailable){
+			if (isTouched) ofFill();
+			else ofNoFill();
+			ofSetColor(255);
+			ofRect(pos.x, pos.y, WIDTH_BUTTONS, HEIGHT_BUTTONS);
+			
+			if (isActiv) {
+				 font.drawString(activName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(activName)/2, pos.y+font.getLineHeight());
+			} else {
+				font.drawString(passivName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(passivName)/2, pos.y+font.getLineHeight());
+			}
 		} else {
+			ofFill();
+			ofSetColor(125, 50,50);
 			font.drawString(passivName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(passivName)/2, pos.y+font.getLineHeight());
 		}
+		ofPopStyle();
 	}
 	
 	void moveTo(int x, int y) {
@@ -87,7 +97,9 @@ class Button{
 	void setIsActiv(bool isActiv){
 		this->isActiv = isActiv;
 	}
-	
+	void setIsAvailable(bool isAvailable){
+		this->isAvailable=isAvailable;
+	}
 	int getAssociatedPages(){
 		return associatedPages;
 	}

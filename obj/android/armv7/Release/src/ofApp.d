@@ -180,7 +180,7 @@ obj/android/armv7/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../libs/openFrameworks/video/ofVideoPlayer.h \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
- ../../../libs/openFrameworks/3d/ofEasyCam.h src/Button.h \
+ ../../../libs/openFrameworks/3d/ofEasyCam.h src/Button.h src/Module.h \
  ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
@@ -570,6 +570,8 @@ src/ofApp.h:
 ../../../libs/openFrameworks/3d/ofEasyCam.h:
 
 src/Button.h:
+
+src/Module.h:
 
 ../../../addons/ofxAndroid/src/ofxAndroid.h:
 

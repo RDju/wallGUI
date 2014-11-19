@@ -182,7 +182,7 @@ obj/android/neon/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
  ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h src/Button.h \
- ../../../addons/ofxAndroid/src/ofxAndroid.h \
+ src/Module.h ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
  ../../../addons/ofxAndroid/src/ofxAndroidUtils.h \
@@ -573,6 +573,8 @@ obj/android/neon/Release/src/main.o: src/main.cpp \
 src/ofApp.h:
 
 src/Button.h:
+
+src/Module.h:
 
 ../../../addons/ofxAndroid/src/ofxAndroid.h:
 
