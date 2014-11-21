@@ -64,6 +64,8 @@ public:
 	void cancelPressed();
 	
 	void drawGrid();
+	void updateGridRepresentation();
+	int rankInTouchOrder(int);
 	
 	//bool isInVector(vector<int> pagesVector, int value);
 
@@ -87,7 +89,7 @@ public:
 	ofRectangle gridSize;
 	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize
 	
-	int touchOrder[SCREEN_MAX_NUMBER];
+	vector<int> touchOrder;
 	int gridRepresentation[7][7];
 	
 	

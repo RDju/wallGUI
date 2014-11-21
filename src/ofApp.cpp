@@ -64,6 +64,12 @@ void ofApp::gridSetup(){
 	for (int i = 0; i < 7;i++){
 		gridLines[i+6].set(gridSize.getX()+0.03*ofGetWidth(), (i+1)*GRID_RATIO, ofGetWidth() - 0.03*ofGetWidth(), (i+1)*GRID_RATIO);
 	}
+	
+	for(int i=0; i<7; i++){
+		for (int j=0; j<7; j++){
+			gridRepresentation[i][j] = 0;
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -110,8 +116,10 @@ void ofApp::update() {
     		case 8:
     		case 9:
     		case 10:
-    			if (GUImodules.size() < SCREEN_MAX_NUMBER)
+    			if (GUImodules.size() < SCREEN_MAX_NUMBER){
     				GUImodules.push_back(new Module(buttonNumber - 7, IDmodulesCount++));
+    				touchOrder.push_back(IDmodulesCount-1);
+    			}
     			if (GUImodules.size() == SCREEN_MAX_NUMBER){
     				for (int i=8; i<11; i++)
     					GUIbuttons[i]->setIsAvailable(false);
@@ -121,29 +129,98 @@ void ofApp::update() {
     }
     isButtonActioned = false;
     
-    
-    //TODO: réagencer GUImodule + ID des modules après avoir réfléchi à comment le faire
+    //suppression des modules
     for (size_t i = 0; i<GUImodules.size(); i++){
     	if (GUImodules[i]->getIsDeleted()){
-    		GUImodules.erase(GUImodules.begin()+i);
-    		for (size_t j=i; j<GUImodules.size(); j++){
+    		GUImodules.erase(GUImodules.begin()+i);//delete module 
+    		for (size_t j=i; j<GUImodules.size(); j++){//decrement the ID of module following the one just deleted
     			GUImodules[j]->setID(GUImodules[j]->getID()-1);
+    		}
+    		IDmodulesCount--;
+    		for (size_t j=0; j<touchOrder.size();j++){//remove the ID from the deleted module from touchOrder
+    			if (touchOrder[j]==i){
+    				touchOrder.erase(touchOrder.begin() + j);
+    				for (size_t k=0; k<touchOrder.size();k++)
+    					if (touchOrder[k] > i) touchOrder[k]--;
+    				break;
+    			}
     		}
     		
     		for (int i=8; i<11; i++)
-    					GUIbuttons[i]->setIsAvailable(true);
+    			GUIbuttons[i]->setIsAvailable(true);
     	}
     }
     
+    //Detect collision
+    for (int i = 0; i< GUImodules.size(); i++){
+    	GUImodules[i]->setIsWellPlaced(true);
+    }
+    for (size_t i = 0; i< GUImodules.size(); i++){
+    	for (size_t j = 0; j< GUImodules.size(); j++){
+    		if(j!=i && GUImodules[i]->isCollision(GUImodules[j]) && rankInTouchOrder(i)>rankInTouchOrder(j))
+    			GUImodules[i]->setIsWellPlaced(false);
+    	}
+    }
+    //Alone module
+    if (GUImodules.size() > 1){
+	    for (size_t i = 0; i< GUImodules.size(); i++){
+	    	if (GUImodules[i]->getPos().y < gridSize.getHeight()){
+		    	bool alone=true;
+		    	for (size_t j = 0; j< GUImodules.size(); j++){
+		    		if (i!=j && !GUImodules[i]->isAlone(GUImodules[j])){
+		    			alone = false;
+		    		}
+		    	}
+		    	if(alone) GUImodules[i]->setIsWellPlaced(false);
+		   	}
+	    }
+	}
+    
+    //updateGridRepresentation();
+    
     //On change de page si besoin
     ostringstream convert; 
-	convert << pageLevel;  
+	convert << pageLevel;
 	if (pageLevel!=previousPageLevel ){
 		strcpy (stringFile, (convert.str()).c_str());
 	  	strcat (stringFile,".png");
 	   
 	    background.loadImage(stringFile);
     }
+}
+
+int ofApp::rankInTouchOrder(int value){
+	for (size_t i = 0; i<touchOrder.size();i++){
+		if (touchOrder[i]==value) return i;
+	}
+	
+	return -1;
+}
+
+void ofApp::updateGridRepresentation(){
+	for(int i=0; i<7; i++){
+		for (int j=0; j<7; j++){
+			gridRepresentation[i][j] = 0;
+		}
+	}
+	for(int i=0; i<GUImodules.size();i++){
+	
+	
+		//ofLogNotice() << "lol :" << GUImodules[i]->locationInGrid.x;
+		//gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)] = 1;
+		
+		
+		
+		
+		/*if (GUImodules[i]->getType()==2){
+			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
+			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+2]=1;
+		} else if (GUImodules[i]->getType()==3){
+			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
+			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)+1][(int)(GUImodules[i]->locationInGrid.y)]=1;
+			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)+1][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
+		}*/
+	}
 }
 
 //--------------------------------------------------------------
@@ -162,12 +239,9 @@ void ofApp::draw() {
     		ofRect(0.03*ofGetWidth(), 0.03*ofGetWidth(), WIDTH_BUTTONS+ 0.03*ofGetWidth(), ofGetHeight() - 2 * 0.045*ofGetHeight());
     		ofPopStyle();
     		
-    		//ofPushMatrix();
-			//ofTranslate(gridSize.getX(), gridSize.getY());
     		for (size_t i = 0; i<GUImodules.size();i++){
-    			GUImodules[i]->draw();
+    			GUImodules[touchOrder[i]]->draw();
     		}
-    		//ofPopMatrix();
     		break;
     }
     
@@ -233,7 +307,26 @@ void ofApp::touchDown(int x, int y, int id){//On met le doigt
 	
 	if (pageLevel == WALLCREATION_PAGE){
 		for (size_t i=0; i < GUImodules.size(); i++){
-			GUImodules[i]->onTouchDown(x, y);
+			GUImodules[touchOrder[i]]->onTouchDown(x, y);
+			if (GUImodules[touchOrder[i]]->getIsTouched()){
+				//for (int j=0; j<touchOrder.size();j++){
+					//if (touchOrder[j]==i) {
+						touchOrder.push_back(touchOrder[i]);
+						touchOrder.erase(touchOrder.begin()+i);
+						
+						//break;
+					//}
+				//}
+			}
+		}
+		for (size_t i=0; i < GUImodules.size(); i++){
+			for (int j=0; j<GUImodules.size();j++){
+					ofLogNotice() << rankInTouchOrder(j) << " " << rankInTouchOrder(i);
+					if(i!=j && GUImodules[j]->getIsTouched() && rankInTouchOrder(j)<rankInTouchOrder(i)){
+						ofLogNotice() << "you're not alone";
+						GUImodules[i]->setIsTouched(false);
+					}
+			}
 		}
 	}
 }
