@@ -201,7 +201,16 @@ obj/android/neon/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
  ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
  ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
- ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h
+ ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
+ ../../../addons/ofxGui/src/ofxGui.h \
+ ../../../addons/ofxGui/src/ofxToggle.h \
+ ../../../addons/ofxGui/src/ofxBaseGui.h \
+ ../../../addons/ofxGui/src/ofxSlider.h \
+ ../../../addons/ofxGui/src/ofxSliderGroup.h \
+ ../../../addons/ofxGui/src/ofxGuiGroup.h \
+ ../../../addons/ofxGui/src/ofxButton.h \
+ ../../../addons/ofxGui/src/ofxPanel.h \
+ ../../../addons/ofxGui/src/ofxLabel.h
 
 src/ofApp.h:
 
@@ -614,3 +623,21 @@ src/Module.h:
 ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
 
 ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
+
+../../../addons/ofxGui/src/ofxGui.h:
+
+../../../addons/ofxGui/src/ofxToggle.h:
+
+../../../addons/ofxGui/src/ofxBaseGui.h:
+
+../../../addons/ofxGui/src/ofxSlider.h:
+
+../../../addons/ofxGui/src/ofxSliderGroup.h:
+
+../../../addons/ofxGui/src/ofxGuiGroup.h:
+
+../../../addons/ofxGui/src/ofxButton.h:
+
+../../../addons/ofxGui/src/ofxPanel.h:
+
+../../../addons/ofxGui/src/ofxLabel.h:

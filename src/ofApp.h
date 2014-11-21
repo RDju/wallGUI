@@ -1,15 +1,18 @@
+#pragma once
+
 #include <stdio.h>
 #include <sstream> 
 #include <cstring> 
 #include <string.h>
 #include <vector>
-#pragma once
+
 
 #include "ofMain.h"
 #include "Button.h"
 #include "Module.h"
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
+#include "ofxGui.h"
 
 
 #define HOST "192.168.0.33"
@@ -19,11 +22,18 @@
 #define Y_BUTTONS 0.17*ofGetHeight()
 
 //pagesLevel
-#define INTRO_PAGE 1
+/*#define INTRO_PAGE 1
 #define MENU_PAGE 2
 #define WALLCREATION_PAGE 3
 #define CHANNELCREATION_PAGE 4
-#define CHANNELSELECT_PAGE 7
+#define CHANNELSELECT_PAGE 7*/
+
+#define HOME_PAGE 1
+#define WALLCREATION_PAGE 2
+#define CHANNELSELECT_PAGE 3
+#define AUTOMIX_PAGE 4
+#define SEARCH_PAGE 5
+#define SETTINGS_PAGE 6
 
 #define CHANNELSNUMBER 3
 
@@ -84,10 +94,11 @@ public:
 	
 	ofTrueTypeFont font;
 	ofImage background;
+	vector<ofImage*> demoChannelImages;
 	ofSoundPlayer ring;
 	
 	ofRectangle gridSize;
-	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize
+	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
 	
 	vector<int> touchOrder;
 	int gridRepresentation[7][7];
@@ -95,6 +106,10 @@ public:
 	
 	vector<Button*> GUIbuttons;
 	vector<Module*> GUImodules;
+	
+	ofxPanel gui;
+	ofParameter<string> wall1;
+	ofParameter<string> wall2;
 
 private:
 	ofxOscSender sender;

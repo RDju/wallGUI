@@ -2,12 +2,12 @@
 #include <string>
 
 #define WIDTH_BUTTONS 0.245*ofGetWidth()
-#define HEIGHT_BUTTONS 0.065*ofGetHeight()
+#define HEIGHT_BUTTONS 1.0/15*ofGetHeight()
 
 class Button{
 	private:
 		char* name;
-		ofPoint pos;
+		ofRectangle dimensions;
 		int associatedPages;
 		string activName;
 		string passivName;
@@ -21,9 +21,9 @@ class Button{
 	
 	
 	
-	Button(char* name, int ID, int x, int y, int associatedPages, string activName, string passivName): name(name), associatedPages(associatedPages), ID(ID), activName(activName), passivName(passivName)
+	Button(char* name, int ID, int x, int y, int w, int h, int associatedPages, string activName, string passivName): name(name), associatedPages(associatedPages), ID(ID), activName(activName), passivName(passivName)
 	{
-		pos.set(x, y, 0);
+		dimensions.set(x, y, w, h);
 		isActiv = false;
 		isTouched = false;
 		isAvailable=true;
@@ -41,27 +41,28 @@ class Button{
 			if (isTouched) ofFill();
 			else ofNoFill();
 			ofSetColor(255);
-			ofRect(pos.x, pos.y, WIDTH_BUTTONS, HEIGHT_BUTTONS);
+			ofRect(dimensions.getX(), dimensions.getY(), dimensions.getWidth(), dimensions.getHeight());
 			
 			if (isActiv) {
-				 font.drawString(activName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(activName)/2, pos.y+font.getLineHeight());
+				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+font.getLineHeight());
 			} else {
-				font.drawString(passivName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(passivName)/2, pos.y+font.getLineHeight());
+				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
 			}
 		} else {
 			ofFill();
 			ofSetColor(125, 50,50);
-			font.drawString(passivName, pos.x + WIDTH_BUTTONS/2-font.stringWidth(passivName)/2, pos.y+font.getLineHeight());
+			font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
 		}
 		ofPopStyle();
 	}
 	
 	void moveTo(int x, int y) {
-		pos.set(x, y, 0);
+		dimensions.setX(x);
+		dimensions.setY(y);
 	}
 	
 	bool isTouchedUp(int x, int y){
-		if (x>pos.x && x < pos.x+WIDTH_BUTTONS && y > pos.y && y < pos.y+HEIGHT_BUTTONS) {
+		if (x>dimensions.getX()&& x < dimensions.getX()+dimensions.getWidth() && y > dimensions.getY()&& y < dimensions.getY()+dimensions.getHeight()) {
 			if (isTouched) isActiv = !isActiv;
 			isTouched = false;
 			return true;
@@ -71,7 +72,7 @@ class Button{
 		}
 	}
 	bool isTouchedDown(int x, int y){
-		if (x>pos.x && x < pos.x+WIDTH_BUTTONS && y > pos.y && y < pos.y+HEIGHT_BUTTONS) {
+		if (x>dimensions.getX()&& x < dimensions.getX()+dimensions.getWidth() && y > dimensions.getY() && y < dimensions.getY()+dimensions.getHeight()) {
 			isTouched = true;
 			return true;
 		} else {
@@ -83,7 +84,12 @@ class Button{
 	
 	
 	void setPos(int x, int y){
-		pos.set(x, y, 0);
+		dimensions.setX(x);
+		dimensions.setY(y);
+	}
+	void setSize(int w, int h){
+		dimensions.setWidth(w);
+		dimensions.setHeight(h);
 	}
 	void setActivName(string activName){
 		this->activName = activName;

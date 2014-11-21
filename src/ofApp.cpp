@@ -8,8 +8,14 @@ void ofApp::setup(){
 	sender.setup( HOST, PORT );
 	
 	font.loadFont("OpenSans-Light.ttf",25);
+	background.loadImage("bckgrimg.png");
 	
-	pageLevel=INTRO_PAGE;
+	for (int i=0; i<6;i++){
+		demoChannelImages.push_back(new ofImage("channel"+ofToString(i)+".png"));
+		demoChannelImages[i]->resize(1.0/3*ofGetHeight(), 1.0/3*ofGetHeight());
+	}
+	
+	pageLevel=HOME_PAGE;
 	previousPageLevel=0;
 	buttonNumber=-1;
 	isButtonActioned = false;
@@ -22,23 +28,38 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	
 	//Buttons
-	GUIbuttons.push_back(new Button("EXIT", IDbuttonsCount++, X_BUTTONS, ofGetHeight()-0.15*ofGetHeight() , -1, "EXIT", "EXIT"));
+	/*GUIbuttons.push_back(new Button("EXIT", IDbuttonsCount++, X_BUTTONS, ofGetHeight()-0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS , -1, "EXIT", "EXIT"));
 	
 	for (int i=0; i<CHANNELSNUMBER; i++){
-		GUIbuttons.push_back(new Button(channelsNames[i], IDbuttonsCount++, X_BUTTONS, Y_BUTTONS+i*(HEIGHT_BUTTONS+0.013*ofGetHeight()), CHANNELSELECT_PAGE, "STOP", "PLAY"));
+		GUIbuttons.push_back(new Button(channelsNames[i], IDbuttonsCount++, X_BUTTONS, Y_BUTTONS+i*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WIDTH_BUTTONS, HEIGHT_BUTTONS, CHANNELSELECT_PAGE, "STOP", "PLAY"));
 	}
 	
-	GUIbuttons.push_back(new Button("CREATE WALL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 - HEIGHT_BUTTONS - 0.15*ofGetHeight() , MENU_PAGE, "CREATE WALL", "CREATE WALL"));
-	GUIbuttons.push_back(new Button("CREATE CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 , MENU_PAGE, "CREATE CHANNEL", "CREATE CHANNEL"));
-	GUIbuttons.push_back(new Button("PLAY CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 + HEIGHT_BUTTONS + 0.15*ofGetHeight(), MENU_PAGE, "PLAY CHANNEL", "PLAY CHANNEL"));
+	GUIbuttons.push_back(new Button("CREATE WALL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 - HEIGHT_BUTTONS - 0.15*ofGetHeight() , WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "CREATE WALL", "CREATE WALL"));
+	GUIbuttons.push_back(new Button("CREATE CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 , WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "CREATE CHANNEL", "CREATE CHANNEL"));
+	GUIbuttons.push_back(new Button("PLAY CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 + HEIGHT_BUTTONS + 0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "PLAY CHANNEL", "PLAY CHANNEL"));
 	
-	GUIbuttons.push_back(new Button("RETURN", IDbuttonsCount++, 0.045*ofGetWidth() , ofGetHeight()-0.15*ofGetHeight(), -1, "RETURN", "RETURN"));
+	GUIbuttons.push_back(new Button("RETURN", IDbuttonsCount++, 0.045*ofGetWidth() , ofGetHeight()-0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, -1, "RETURN", "RETURN"));
 	
-	GUIbuttons.push_back(new Button("screen13", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS, WALLCREATION_PAGE, "13' screen", "13' screen"));
-	GUIbuttons.push_back(new Button("screen24", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+HEIGHT_BUTTONS+0.013*ofGetHeight(), WALLCREATION_PAGE, "24' screen", "24' screen"));
-	GUIbuttons.push_back(new Button("screen27", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+2*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WALLCREATION_PAGE, "27' screen", "27' screen"));
+	GUIbuttons.push_back(new Button("screen13", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "13' screen", "13' screen"));
+	GUIbuttons.push_back(new Button("screen24", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+HEIGHT_BUTTONS+0.013*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "24' screen", "24' screen"));
+	GUIbuttons.push_back(new Button("screen27", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+2*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "27' screen", "27' screen"));
+	*/
 	
+	GUIbuttons.push_back(new Button("HOME", HOME_PAGE, 0, 0, 1.0/5*ofGetWidth(), HEIGHT_BUTTONS , -1, "HOME", "HOME"));
+	GUIbuttons.push_back(new Button("EXIT", 0, 8.0/15*ofGetWidth(), 0, 1.0/15*ofGetWidth(), HEIGHT_BUTTONS , -1, "EXIT", "EXIT"));
+	GUIbuttons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 3.0/5*ofGetWidth(), 0, 1.0/15*ofGetWidth(), HEIGHT_BUTTONS , -1, "/", "/"));
+	GUIbuttons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "My channels", "My channels"));
+	GUIbuttons.push_back(new Button("Automix", AUTOMIX_PAGE, 1.0/3*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "# Automix", "# Automix"));
+	GUIbuttons.push_back(new Button("Search", SEARCH_PAGE, 2.0/3*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "#/@ Search", "#/@ Search"));
 	
+	ofxGuiSetBackgroundColor(0);
+	ofxGuiSetFont("OpenSans-Light.ttf",0.033*ofGetHeight(),true,true);
+	ofxGuiSetTextPadding(20);
+	ofxGuiSetDefaultWidth(1.0/3*ofGetWidth());
+	ofxGuiSetDefaultHeight(HEIGHT_BUTTONS);
+	gui.setup("WALLS"); 
+	gui.add(wall1.set("Wall kitchen"));
+	gui.add(wall2.set("Wall living room"));
 	
 	//OSC message
 	ofxOscMessage m;
@@ -79,7 +100,27 @@ void ofApp::update() {
     if (isButtonActioned){
     	ofxOscMessage m;
     	switch(buttonNumber){
-    		case 0://Exit
+    		case 0:
+    			m.setAddress( "/EXIT");
+				sender.sendMessage( m );
+	
+				ofApp::exit();
+				std::exit(EXIT_SUCCESS);
+				
+    			break;
+    		case HOME_PAGE:
+    		case WALLCREATION_PAGE:
+    		case CHANNELSELECT_PAGE:
+    		case AUTOMIX_PAGE:
+    		case SEARCH_PAGE:
+    		case SETTINGS_PAGE:
+    			pageLevel=buttonNumber;
+    			break;
+    			
+    			
+    			
+    			
+    		/*case 0://Exit
     			
 				m.setAddress( "/EXIT");
 				sender.sendMessage( m );
@@ -109,7 +150,7 @@ void ofApp::update() {
     			switch (pageLevel){
     				case WALLCREATION_PAGE:
     				case CHANNELSELECT_PAGE:
-    					pageLevel = MENU_PAGE;
+    					pageLevel = HOME_PAGE;
     					break;
     			}
     			break;
@@ -124,7 +165,7 @@ void ofApp::update() {
     				for (int i=8; i<11; i++)
     					GUIbuttons[i]->setIsAvailable(false);
     			}
-    			break;
+    			break;*/
     	}
     }
     isButtonActioned = false;
@@ -178,25 +219,27 @@ void ofApp::update() {
     
     //updateGridRepresentation();
     
-    //On change de page si besoin
-    ostringstream convert; 
+    //On change de background si besoin
+    /*ostringstream convert; 
 	convert << pageLevel;
 	if (pageLevel!=previousPageLevel ){
 		strcpy (stringFile, (convert.str()).c_str());
 	  	strcat (stringFile,".png");
 	   
 	    background.loadImage(stringFile);
-    }
+    }*/
 }
 
+//Argument : ID of the module
+//return : order rank 
 int ofApp::rankInTouchOrder(int value){
 	for (size_t i = 0; i<touchOrder.size();i++){
 		if (touchOrder[i]==value) return i;
 	}
-	
 	return -1;
 }
 
+//fill an arraw corresponding to the grid with . if the case is empty and # if there is a module in the case.
 void ofApp::updateGridRepresentation(){
 	for(int i=0; i<7; i++){
 		for (int j=0; j<7; j++){
@@ -227,8 +270,39 @@ void ofApp::updateGridRepresentation(){
 void ofApp::draw() {
 
     background.draw(0, 0);
+    ofPushStyle();
+	    ofSetColor(0);
+	    ofFill();
+	    ofRect(0, 0, ofGetWidth(), HEIGHT_BUTTONS);
+	    ofRect(0, ofGetHeight()-HEIGHT_BUTTONS, ofGetWidth(), HEIGHT_BUTTONS);
+	    
+	    ofPushMatrix();
+	    	ofTranslate(2.0/3*ofGetWidth()-10, -10);
+	    	gui.draw();
+	    ofPopMatrix();
+	    ofSetColor(255);
+	    ofNoFill();
+	    ofRect(0, 0, ofGetWidth(), HEIGHT_BUTTONS);
+	    ofRect(0, ofGetHeight()-HEIGHT_BUTTONS, ofGetWidth(), HEIGHT_BUTTONS);
+    ofPopStyle();
+    
     
     switch (pageLevel){
+    	case HOME_PAGE:
+    		
+    		for(int i=0; i<6; i++){
+    			ofPushMatrix();
+    			
+    			if (i%2==0){
+    				demoChannelImages[i]->draw((i/2+1)*100+i/2*1.0/3*ofGetHeight(), 100);
+    			} else {
+    				demoChannelImages[i]->draw((i/2+1)*100+i/2*1.0/3*ofGetHeight(), 3.0/15*ofGetHeight()+1.0/3*ofGetHeight());
+    			}
+    			
+    			ofPopMatrix();
+    		}
+    		
+    		break;
     	case WALLCREATION_PAGE:
     	
     		drawGrid();
@@ -252,47 +326,15 @@ void ofApp::draw() {
     }
 	previousPageLevel = pageLevel;
 }
-
+//--------------------------------------------------------------
 void ofApp::drawGrid(){
-	/*for (int i = 0; i < (gridSize.getWidth()/1.7*GRID_RATIO);i++){
-		ofLine(i*1.7*GRID_RATIO, 0.03*ofGetWidth(), i*1.7*GRID_RATIO, gridSize.getHeight()-0.03*ofGetHeight());
-	}
-	for (int i = 0; i < (gridSize.getHeight()/GRID_RATIO);i++){
-		ofLine(gridSize.getX()+0.03*ofGetWidth(), i*GRID_RATIO, ofGetWidth() - 0.03*ofGetWidth(), i*GRID_RATIO);
-	}*/
-	
+
 	for (int i=0; i<13; i++){
-		/*ofPushMatrix();
-		ofTranslate(gridSize.getX(), gridSize.getY());*/
-		
 		ofPushStyle();
     	ofSetColor(200);
     	ofLine(gridLines[i].getX(), gridLines[i].getY(), gridLines[i].getWidth(), gridLines[i].getHeight());
     	ofPopStyle();
-    	//ofPopMatrix();
 	}
-}
-
-/*bool ofApp::isInVector(vector<int> pagesVector, int value){
-	for (size_t i=0; i<pagesVector.size(); i++){
-		if (pagesVector[i] == value) return true;
-	}
-	return false;
-}*/
-
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
 }
 
 //--------------------------------------------------------------
@@ -359,23 +401,10 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 			}
 		}
 	}
-	
 	if (pageLevel == WALLCREATION_PAGE){
 		for (size_t i=0; i < GUImodules.size(); i++){
 			GUImodules[i]->onTouchUp(x, y);
 		}
-	}
-
-	//Touche de l'écran par page
-	ofxOscMessage m;
-	switch (pageLevel) {
-		case INTRO_PAGE:
-			pageLevel = MENU_PAGE;
-			
-	        m.setAddress( "/STOP");
-	        sender.sendMessage( m );
-	        
-			break;
 	}
 }
 
@@ -387,48 +416,29 @@ void ofApp::touchDoubleTap(int x, int y, int id){
 		}
 	}
 }
+//--------------------------------------------------------------
+
+//check if a number is in the vector
+/*bool ofApp::isInVector(vector<int> pagesVector, int value){
+	for (size_t i=0; i<pagesVector.size(); i++){
+		if (pagesVector[i] == value) return true;
+	}
+	return false;
+}*/
 
 //--------------------------------------------------------------
-void ofApp::touchCancelled(int x, int y, int id){
 
-}
-
-//--------------------------------------------------------------
-void ofApp::swipe(ofxAndroidSwipeDir swipeDir, int id){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::pause(){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::stop(){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::resume(){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::reloadTextures(){
-
-}
-
-//--------------------------------------------------------------
+void ofApp::keyPressed(int key){}
+void ofApp::keyReleased(int key){}
+void ofApp::windowResized(int w, int h){}
+void ofApp::touchCancelled(int x, int y, int id){}
+void ofApp::swipe(ofxAndroidSwipeDir swipeDir, int id){}
+void ofApp::pause(){}
+void ofApp::stop(){}
+void ofApp::resume(){}
+void ofApp::reloadTextures(){}
 bool ofApp::backPressed(){
 	return false;
 }
-
-//---------
-
-void ofApp::okPressed(){
-
-}
-
-void ofApp::cancelPressed(){
-
-}
+void ofApp::okPressed(){}
+void ofApp::cancelPressed(){}
