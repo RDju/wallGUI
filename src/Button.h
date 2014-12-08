@@ -27,7 +27,7 @@ class Button{
 		isActiv = false;
 		isTouched = false;
 		isAvailable=true;
-		font.loadFont("OpenSans-Light.ttf", 0.033*ofGetHeight());
+		font.loadFont("OpenSans-Light.ttf", 15);
 	}
 
 	void update() {
@@ -44,9 +44,9 @@ class Button{
 			ofRect(dimensions.getX(), dimensions.getY(), dimensions.getWidth(), dimensions.getHeight());
 			
 			if (isActiv) {
-				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+font.getLineHeight());
+				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+HEIGHT_BUTTONS/2+font.getLineHeight()/2);
 			} else {
-				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
+				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+HEIGHT_BUTTONS/2+font.getLineHeight()/2);
 			}
 		} else {
 			ofFill();

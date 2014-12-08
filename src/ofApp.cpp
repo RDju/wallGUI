@@ -1,18 +1,25 @@
 #include "ofApp.h"
+//#include <jni.h>
 
 using namespace std;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	
+
 	sender.setup( HOST, PORT );
 	
-	font.loadFont("OpenSans-Light.ttf",25);
-	background.loadImage("bckgrimg.png");
+	font.loadFont("OpenSans-Light.ttf",20);
+	background.loadImage("bckgrimgWhite.png");
 	
-	for (int i=0; i<6;i++){
+	/*for (int i=0; i<5;i++){
 		demoChannelImages.push_back(new ofImage("channel"+ofToString(i)+".png"));
 		demoChannelImages[i]->resize(1.0/3*ofGetHeight(), 1.0/3*ofGetHeight());
+	}*/
+	
+	string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel"};
+	
+	for (int i=0; i<6;i++){
+		demoChannels.push_back(new Channel("channel"+ofToString(i)+".png", channelNames[i], "user", rand()%5));
 	}
 	
 	pageLevel=HOME_PAGE;
@@ -28,38 +35,65 @@ void ofApp::setup(){
 	ofEnableAlphaBlending();
 	
 	//Buttons
-	/*GUIbuttons.push_back(new Button("EXIT", IDbuttonsCount++, X_BUTTONS, ofGetHeight()-0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS , -1, "EXIT", "EXIT"));
+	GUIbuttons.push_back(new Button("HOME", HOME_PAGE, 0, 0, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "HOME", "HOME"));
+	GUIbuttons.push_back(new Button("LOG OUT", 0,  15.0/28*ofGetWidth(), 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "LOG OUT", "LOG OUT"));
+	GUIbuttons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 18.0/28*ofGetWidth(), 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "SETTINGS", "SETTINGS"));
 	
-	for (int i=0; i<CHANNELSNUMBER; i++){
-		GUIbuttons.push_back(new Button(channelsNames[i], IDbuttonsCount++, X_BUTTONS, Y_BUTTONS+i*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WIDTH_BUTTONS, HEIGHT_BUTTONS, CHANNELSELECT_PAGE, "STOP", "PLAY"));
-	}
+	GUIbuttons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "My channels", "My channels"));
+	//GUIbuttons.push_back(new Button("Automix", AUTOMIX_PAGE, 1.0/4*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "What @ or # is on your mind ?", "What @ or # is on your mind ?"));
+	//GUIbuttons.push_back(new Button("Search", SEARCH_PAGE, 5.0/8*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "Search a # or a @", "Search a # or a @"));
 	
-	GUIbuttons.push_back(new Button("CREATE WALL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 - HEIGHT_BUTTONS - 0.15*ofGetHeight() , WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "CREATE WALL", "CREATE WALL"));
-	GUIbuttons.push_back(new Button("CREATE CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 , WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "CREATE CHANNEL", "CREATE CHANNEL"));
-	GUIbuttons.push_back(new Button("PLAY CHANNEL", IDbuttonsCount++, ofGetWidth()/2 - WIDTH_BUTTONS/2, ofGetHeight()/2 + HEIGHT_BUTTONS + 0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, HOME_PAGE, "PLAY CHANNEL", "PLAY CHANNEL"));
+	//zones de texte
 	
-	GUIbuttons.push_back(new Button("RETURN", IDbuttonsCount++, 0.045*ofGetWidth() , ofGetHeight()-0.15*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, -1, "RETURN", "RETURN"));
+	ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
+	ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
+    ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
+    ofxUIColor coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
+    ofxUIColor cf = ofxUIColor(255, 255, 255, 255); //texte non sélectionné
+    ofxUIColor cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
+    ofxUIColor cp = ofxUIColor(255, 255, 255, 255); // ???
+    ofxUIColor cpo = ofxUIColor(255, 0, 0, 255);
+    
 	
-	GUIbuttons.push_back(new Button("screen13", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "13' screen", "13' screen"));
-	GUIbuttons.push_back(new Button("screen24", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+HEIGHT_BUTTONS+0.013*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "24' screen", "24' screen"));
-	GUIbuttons.push_back(new Button("screen27", IDbuttonsCount++, 0.045*ofGetWidth() , Y_BUTTONS+2*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "27' screen", "27' screen"));
-	*/
+	guiAuto = new ofxUICanvas( 1.0/4*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS);
+	guiAuto->setFont("OpenSans-Light.ttf");
+	guiAuto->setWidgetFontSize(OFX_UI_FONT_LARGE);
+	guiAuto->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+	automixTextInput = guiAuto->addTextInput("automix", "automix", -1); 
+	//automixTextInput->setAutoUnfocus(true);
 	
-	GUIbuttons.push_back(new Button("HOME", HOME_PAGE, 0, 0, 1.0/5*ofGetWidth(), HEIGHT_BUTTONS , -1, "HOME", "HOME"));
-	GUIbuttons.push_back(new Button("EXIT", 0, 8.0/15*ofGetWidth(), 0, 1.0/15*ofGetWidth(), HEIGHT_BUTTONS , -1, "EXIT", "EXIT"));
-	GUIbuttons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 3.0/5*ofGetWidth(), 0, 1.0/15*ofGetWidth(), HEIGHT_BUTTONS , -1, "/", "/"));
-	GUIbuttons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "My channels", "My channels"));
-	GUIbuttons.push_back(new Button("Automix", AUTOMIX_PAGE, 1.0/3*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "# Automix", "# Automix"));
-	GUIbuttons.push_back(new Button("Search", SEARCH_PAGE, 2.0/3*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS , -1, "#/@ Search", "#/@ Search"));
+	//automixGui->setPosition(x,y);
+	//automixTextInput->setAutoClear(true);
 	
-	ofxGuiSetBackgroundColor(0);
-	ofxGuiSetFont("OpenSans-Light.ttf",0.033*ofGetHeight(),true,true);
-	ofxGuiSetTextPadding(20);
-	ofxGuiSetDefaultWidth(1.0/3*ofGetWidth());
-	ofxGuiSetDefaultHeight(HEIGHT_BUTTONS);
-	gui.setup("WALLS"); 
-	gui.add(wall1.set("Wall kitchen"));
-	gui.add(wall2.set("Wall living room"));
+	guiSearch = new ofxUICanvas(2.0/3*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 1.0/3*ofGetWidth(), HEIGHT_BUTTONS);
+	guiSearch->setFont("OpenSans-Light.ttf");
+	guiSearch->setWidgetFontSize(OFX_UI_FONT_LARGE);
+	guiSearch->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+	searchTextInput = guiSearch->addTextInput("search", "search", -1);
+	//searchTextInput->setAutoClear(true);
+	
+	
+	/*guiTest = new ofxUISuperCanvas("", 100, 100, 200, 200, 3);
+	testInput = guiTest->addTextInput("pouet", "pouet", -1); */
+	
+	//Menu déroulant
+	guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth(), 0, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
+	guiMenuDeroulant->setFont("OpenSans-Light.ttf");
+	guiMenuDeroulant->setWidgetFontSize(OFX_UI_FONT_LARGE);
+	guiMenuDeroulant->setUIColors( cb2, co, coh, cf, cfh, cp, cpo );
+	
+    vector<string> names;
+    names.push_back("WALL DE LA CUISINE");    
+    names.push_back("WALL DU SALON");    
+    names.push_back("WALL DE LA CHAMBRE");
+    names.push_back("CREATE A NEW WALL");
+    
+	wallList = guiMenuDeroulant->addDropDownList("WALLS", names, 1.0/4*ofGetWidth(), 0, 20);
+	wallList ->setAllowMultiple(false);
+	wallList ->setShowCurrentSelected(true); 
+	wallList->setAutoClose(true);
+	ofAddListener(guiMenuDeroulant->newGUIEvent, this, &ofApp::guiEvent);
+	
 	
 	//OSC message
 	ofxOscMessage m;
@@ -95,6 +129,10 @@ void ofApp::gridSetup(){
 
 //--------------------------------------------------------------
 void ofApp::update() {
+
+	if (automixTextInput->isClicked())
+		guiAuto->setPosition(30, ofGetHeight()/2+20);
+	else guiAuto->setPosition(1.0/4*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS);
 	
     //Actions liées aux clic sur des boutons
     if (isButtonActioned){
@@ -164,7 +202,7 @@ void ofApp::update() {
     			if (GUImodules.size() == SCREEN_MAX_NUMBER){
     				for (int i=8; i<11; i++)
     					GUIbuttons[i]->setIsAvailable(false);
-    			}
+    			}infoFont.getSize()
     			break;*/
     	}
     }
@@ -176,7 +214,7 @@ void ofApp::update() {
     		GUImodules.erase(GUImodules.begin()+i);//delete module 
     		for (size_t j=i; j<GUImodules.size(); j++){//decrement the ID of module following the one just deleted
     			GUImodules[j]->setID(GUImodules[j]->getID()-1);
-    		}
+    		}https://mail.google.com/mail/u/0/#inbox
     		IDmodulesCount--;
     		for (size_t j=0; j<touchOrder.size();j++){//remove the ID from the deleted module from touchOrder
     			if (touchOrder[j]==i){
@@ -270,15 +308,16 @@ void ofApp::updateGridRepresentation(){
 void ofApp::draw() {
 
     background.draw(0, 0);
+    
     ofPushStyle();
-	    ofSetColor(0);
+	    ofSetColor(36, 37, 38);
 	    ofFill();
 	    ofRect(0, 0, ofGetWidth(), HEIGHT_BUTTONS);
 	    ofRect(0, ofGetHeight()-HEIGHT_BUTTONS, ofGetWidth(), HEIGHT_BUTTONS);
 	    
 	    ofPushMatrix();
 	    	ofTranslate(2.0/3*ofGetWidth()-10, -10);
-	    	gui.draw();
+	    	//gui.draw();
 	    ofPopMatrix();
 	    ofSetColor(255);
 	    ofNoFill();
@@ -293,12 +332,12 @@ void ofApp::draw() {
     		for(int i=0; i<6; i++){
     			ofPushMatrix();
     			
+    			//testChannel->draw(50, HEIGHT_BUTTONS+50);
     			if (i%2==0){
-    				demoChannelImages[i]->draw((i/2+1)*100+i/2*1.0/3*ofGetHeight(), 100);
+    				demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50, 100);
     			} else {
-    				demoChannelImages[i]->draw((i/2+1)*100+i/2*1.0/3*ofGetHeight(), 3.0/15*ofGetHeight()+1.0/3*ofGetHeight());
+    				demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50, 3.0/15*ofGetHeight()+1.0/3*ofGetHeight());
     			}
-    			
     			ofPopMatrix();
     		}
     		
@@ -335,6 +374,17 @@ void ofApp::drawGrid(){
     	ofLine(gridLines[i].getX(), gridLines[i].getY(), gridLines[i].getWidth(), gridLines[i].getHeight());
     	ofPopStyle();
 	}
+}
+
+//--------------------------------------------------------------
+void ofApp::guiEvent(ofxUIEventArgs &e)
+{
+    string name = e.widget->getName();
+    if(name == "WALLS")
+    {
+        ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
+        vector<ofxUIWidget *> &selected = ddlist->getSelected(); 
+    }
 }
 
 //--------------------------------------------------------------
@@ -428,7 +478,24 @@ void ofApp::touchDoubleTap(int x, int y, int id){
 
 //--------------------------------------------------------------
 
-void ofApp::keyPressed(int key){}
+void ofApp::keyPressed(int key){
+	ofLogNotice() << key;
+}
+
+/*void ofApp::openKeyboard(){
+	JNIEnv *env = ofGetJNIEnv();
+	jmethodID javaReturnMethod = env->GetMethodID(javaClass,"openKeyboard","()V");
+	env->CallVoidMethod(javaObject,javaReturnMethod);
+}
+void ofApp::closeKeyboard(){
+
+}*/
+
+void ofApp::exit()
+{
+
+}
+
 void ofApp::keyReleased(int key){}
 void ofApp::windowResized(int w, int h){}
 void ofApp::touchCancelled(int x, int y, int id){}

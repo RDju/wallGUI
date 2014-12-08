@@ -181,7 +181,7 @@ obj/android/x86/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
  ../../../libs/openFrameworks/3d/ofEasyCam.h src/Button.h src/Module.h \
- ../../../addons/ofxAndroid/src/ofxAndroid.h \
+ src/Channel.h ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
  ../../../addons/ofxAndroid/src/ofxAndroidUtils.h \
@@ -210,7 +210,58 @@ obj/android/x86/Release/src/ofApp.o: src/ofApp.cpp src/ofApp.h \
  ../../../addons/ofxGui/src/ofxGuiGroup.h \
  ../../../addons/ofxGui/src/ofxButton.h \
  ../../../addons/ofxGui/src/ofxPanel.h \
- ../../../addons/ofxGui/src/ofxLabel.h
+ ../../../addons/ofxGui/src/ofxLabel.h ../../../addons/ofxUI/src/ofxUI.h \
+ ../../../addons/ofxUI/src/ofxUIDefines.h \
+ ../../../addons/ofxXmlSettings/src/ofxXmlSettings.h \
+ ../../../addons/ofxXmlSettings/src/../libs/tinyxml.h \
+ ../../../addons/ofxUI/src/ofxUIWidget.h \
+ ../../../addons/ofxUI/src/ofxUIWrapper.h \
+ ../../../addons/ofxUI/src/ofxUIOFWrapper.h \
+ ../../../addons/ofxUI/src/ofxUIUtils.h \
+ ../../../addons/ofxUI/src/ofxUIRectangle.h \
+ ../../../addons/ofxUI/src/ofxUIWidgetWithLabel.h \
+ ../../../addons/ofxUI/src/ofxUIEventArgs.h \
+ ../../../addons/ofxUI/src/ofxUISlider.h \
+ ../../../addons/ofxUI/src/ofxUIButton.h \
+ ../../../addons/ofxUI/src/ofxUIToggle.h \
+ ../../../addons/ofxUI/src/ofxUIWidgets.h \
+ ../../../addons/ofxUI/src/ofxUILabel.h \
+ ../../../addons/ofxUI/src/ofxUIFPS.h \
+ ../../../addons/ofxUI/src/ofxUIImageSlider.h \
+ ../../../addons/ofxUI/src/ofxUIFPSSlider.h \
+ ../../../addons/ofxUI/src/ofxUIMinimalSlider.h \
+ ../../../addons/ofxUI/src/ofxUICircleSlider.h \
+ ../../../addons/ofxUI/src/ofxUIBiLabelSlider.h \
+ ../../../addons/ofxUI/src/ofxUIRangeSlider.h \
+ ../../../addons/ofxUI/src/ofxUIMultiImageButton.h \
+ ../../../addons/ofxUI/src/ofxUIMultiImageToggle.h \
+ ../../../addons/ofxUI/src/ofxUIRadio.h \
+ ../../../addons/ofxUI/src/ofxUI2DPad.h \
+ ../../../addons/ofxUI/src/ofxUI2DGraph.h \
+ ../../../addons/ofxUI/src/ofxUITextInput.h \
+ ../../../addons/ofxUI/src/ofxUITextArea.h \
+ ../../../addons/ofxUI/src/ofxUINumberDialer.h \
+ ../../../addons/ofxUI/src/ofxUILabelButton.h \
+ ../../../addons/ofxUI/src/ofxUILabelToggle.h \
+ ../../../addons/ofxUI/src/ofxUIDragableLabelButton.h \
+ ../../../addons/ofxUI/src/ofxUISortableList.h \
+ ../../../addons/ofxUI/src/ofxUIToggleMatrix.h \
+ ../../../addons/ofxUI/src/ofxUIImageButton.h \
+ ../../../addons/ofxUI/src/ofxUIImageToggle.h \
+ ../../../addons/ofxUI/src/ofxUIRotarySlider.h \
+ ../../../addons/ofxUI/src/ofxUISpacer.h \
+ ../../../addons/ofxUI/src/ofxUIDropDownList.h \
+ ../../../addons/ofxUI/src/ofxUIWaveform.h \
+ ../../../addons/ofxUI/src/ofxUISpectrum.h \
+ ../../../addons/ofxUI/src/ofxUIMovingGraph.h \
+ ../../../addons/ofxUI/src/ofxUIValuePlotter.h \
+ ../../../addons/ofxUI/src/ofxUIImage.h \
+ ../../../addons/ofxUI/src/ofxUIBaseDraws.h \
+ ../../../addons/ofxUI/src/ofxUIImageSampler.h \
+ ../../../addons/ofxUI/src/ofxUICanvas.h \
+ ../../../addons/ofxUI/src/ofxUIScrollableCanvas.h \
+ ../../../addons/ofxUI/src/ofxUISuperCanvas.h \
+ ../../../addons/ofxUI/src/ofxUITabBar.h
 
 src/ofApp.h:
 
@@ -582,6 +633,8 @@ src/Button.h:
 
 src/Module.h:
 
+src/Channel.h:
+
 ../../../addons/ofxAndroid/src/ofxAndroid.h:
 
 ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h:
@@ -641,3 +694,107 @@ src/Module.h:
 ../../../addons/ofxGui/src/ofxPanel.h:
 
 ../../../addons/ofxGui/src/ofxLabel.h:
+
+../../../addons/ofxUI/src/ofxUI.h:
+
+../../../addons/ofxUI/src/ofxUIDefines.h:
+
+../../../addons/ofxXmlSettings/src/ofxXmlSettings.h:
+
+../../../addons/ofxXmlSettings/src/../libs/tinyxml.h:
+
+../../../addons/ofxUI/src/ofxUIWidget.h:
+
+../../../addons/ofxUI/src/ofxUIWrapper.h:
+
+../../../addons/ofxUI/src/ofxUIOFWrapper.h:
+
+../../../addons/ofxUI/src/ofxUIUtils.h:
+
+../../../addons/ofxUI/src/ofxUIRectangle.h:
+
+../../../addons/ofxUI/src/ofxUIWidgetWithLabel.h:
+
+../../../addons/ofxUI/src/ofxUIEventArgs.h:
+
+../../../addons/ofxUI/src/ofxUISlider.h:
+
+../../../addons/ofxUI/src/ofxUIButton.h:
+
+../../../addons/ofxUI/src/ofxUIToggle.h:
+
+../../../addons/ofxUI/src/ofxUIWidgets.h:
+
+../../../addons/ofxUI/src/ofxUILabel.h:
+
+../../../addons/ofxUI/src/ofxUIFPS.h:
+
+../../../addons/ofxUI/src/ofxUIImageSlider.h:
+
+../../../addons/ofxUI/src/ofxUIFPSSlider.h:
+
+../../../addons/ofxUI/src/ofxUIMinimalSlider.h:
+
+../../../addons/ofxUI/src/ofxUICircleSlider.h:
+
+../../../addons/ofxUI/src/ofxUIBiLabelSlider.h:
+
+../../../addons/ofxUI/src/ofxUIRangeSlider.h:
+
+../../../addons/ofxUI/src/ofxUIMultiImageButton.h:
+
+../../../addons/ofxUI/src/ofxUIMultiImageToggle.h:
+
+../../../addons/ofxUI/src/ofxUIRadio.h:
+
+../../../addons/ofxUI/src/ofxUI2DPad.h:
+
+../../../addons/ofxUI/src/ofxUI2DGraph.h:
+
+../../../addons/ofxUI/src/ofxUITextInput.h:
+
+../../../addons/ofxUI/src/ofxUITextArea.h:
+
+../../../addons/ofxUI/src/ofxUINumberDialer.h:
+
+../../../addons/ofxUI/src/ofxUILabelButton.h:
+
+../../../addons/ofxUI/src/ofxUILabelToggle.h:
+
+../../../addons/ofxUI/src/ofxUIDragableLabelButton.h:
+
+../../../addons/ofxUI/src/ofxUISortableList.h:
+
+../../../addons/ofxUI/src/ofxUIToggleMatrix.h:
+
+../../../addons/ofxUI/src/ofxUIImageButton.h:
+
+../../../addons/ofxUI/src/ofxUIImageToggle.h:
+
+../../../addons/ofxUI/src/ofxUIRotarySlider.h:
+
+../../../addons/ofxUI/src/ofxUISpacer.h:
+
+../../../addons/ofxUI/src/ofxUIDropDownList.h:
+
+../../../addons/ofxUI/src/ofxUIWaveform.h:
+
+../../../addons/ofxUI/src/ofxUISpectrum.h:
+
+../../../addons/ofxUI/src/ofxUIMovingGraph.h:
+
+../../../addons/ofxUI/src/ofxUIValuePlotter.h:
+
+../../../addons/ofxUI/src/ofxUIImage.h:
+
+../../../addons/ofxUI/src/ofxUIBaseDraws.h:
+
+../../../addons/ofxUI/src/ofxUIImageSampler.h:
+
+../../../addons/ofxUI/src/ofxUICanvas.h:
+
+../../../addons/ofxUI/src/ofxUIScrollableCanvas.h:
+
+../../../addons/ofxUI/src/ofxUISuperCanvas.h:
+
+../../../addons/ofxUI/src/ofxUITabBar.h:

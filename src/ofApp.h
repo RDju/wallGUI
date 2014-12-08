@@ -7,12 +7,16 @@
 #include <vector>
 
 
+
 #include "ofMain.h"
 #include "Button.h"
 #include "Module.h"
+#include "Channel.h"
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
 #include "ofxGui.h"
+#include "ofxUI.h"
+//#include "ofxUITextInput.h"
 
 
 #define HOST "192.168.0.33"
@@ -56,6 +60,8 @@ public:
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void windowResized(int w, int h);
+	/*void openKeyboard();
+	void closeKeyboard();*/
 
 	void touchDown(int x, int y, int id);
 	void touchMoved(int x, int y, int id);
@@ -63,6 +69,8 @@ public:
 	void touchDoubleTap(int x, int y, int id);
 	void touchCancelled(int x, int y, int id);
 	void swipe(ofxAndroidSwipeDir swipeDir, int id);
+	
+	void guiEvent(ofxUIEventArgs &e);
 
 	void pause();
 	void stop();
@@ -94,8 +102,7 @@ public:
 	
 	ofTrueTypeFont font;
 	ofImage background;
-	vector<ofImage*> demoChannelImages;
-	ofSoundPlayer ring;
+	vector<Channel*> demoChannels;
 	
 	ofRectangle gridSize;
 	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
@@ -103,13 +110,22 @@ public:
 	vector<int> touchOrder;
 	int gridRepresentation[7][7];
 	
-	
 	vector<Button*> GUIbuttons;
 	vector<Module*> GUImodules;
 	
-	ofxPanel gui;
-	ofParameter<string> wall1;
-	ofParameter<string> wall2;
+	ofxUICanvas *guiAuto;
+	ofxUICanvas *guiSearch;
+	ofxUICanvas *guiMenuDeroulant; 
+	ofxUIDropDownList *wallList;
+	ofxUITextInput *automixTextInput;
+	ofxUITextInput *searchTextInput;
+	
+	//ofxUISuperCanvas *guiTest;
+	//ofxUITextInput *testInput;
+	
+	Channel *testChannel;
+	
+	void exit(); 
 
 private:
 	ofxOscSender sender;

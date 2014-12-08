@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import cc.openframeworks.OFAndroid;
 
-
 public class OFActivity extends cc.openframeworks.OFActivity{
 
 	@Override
@@ -84,7 +83,6 @@ public class OFActivity extends cc.openframeworks.OFActivity{
     	//  you can add or remove menu options from here
     	return  super.onPrepareOptionsMenu(menu);
     }
-	
 }
 
 
