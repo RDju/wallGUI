@@ -14,6 +14,7 @@ class Button{
 		bool isActiv, isTouched, isAvailable;
 		int ID;
 		ofTrueTypeFont font;
+		int color;
 		
 		
 		
@@ -21,7 +22,7 @@ class Button{
 	
 	
 	
-	Button(char* name, int ID, int x, int y, int w, int h, int associatedPages, string activName, string passivName): name(name), associatedPages(associatedPages), ID(ID), activName(activName), passivName(passivName)
+	Button(char* name, int ID, int x, int y, int w, int h, int associatedPages, string activName, string passivName, int color = 255): name(name), associatedPages(associatedPages), ID(ID), activName(activName), passivName(passivName), color(color)
 	{
 		dimensions.set(x, y, w, h);
 		isActiv = false;
@@ -40,13 +41,13 @@ class Button{
 		if (isAvailable){
 			if (isTouched) ofFill();
 			else ofNoFill();
-			ofSetColor(255);
+			ofSetColor(color);
 			ofRect(dimensions.getX(), dimensions.getY(), dimensions.getWidth(), dimensions.getHeight());
 			
 			if (isActiv) {
-				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+HEIGHT_BUTTONS/2+font.getLineHeight()/2);
+				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
 			} else {
-				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+HEIGHT_BUTTONS/2+font.getLineHeight()/2);
+				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
 			}
 		} else {
 			ofFill();
@@ -105,6 +106,9 @@ class Button{
 	}
 	void setIsAvailable(bool isAvailable){
 		this->isAvailable=isAvailable;
+	}
+	void setID(int ID){
+		this->ID = ID;
 	}
 	int getAssociatedPages(){
 		return associatedPages;

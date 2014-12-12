@@ -182,36 +182,7 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
  ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h src/Button.h \
- src/Module.h src/Channel.h ../../../addons/ofxAndroid/src/ofxAndroid.h \
- ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
- ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
- ../../../addons/ofxAndroid/src/ofxAndroidUtils.h \
- ../../../addons/ofxOsc/src/ofxOsc.h \
- ../../../addons/ofxOsc/src/ofxOscArg.h \
- ../../../addons/ofxOsc/src/ofxOscMessage.h \
- ../../../addons/ofxOsc/src/ofxOscSender.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
- ../../../addons/ofxOsc/src/ofxOscBundle.h \
- ../../../addons/ofxOsc/src/ofxOscReceiver.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
- /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstddef \
- ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
- ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
- ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
- ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
- ../../../addons/ofxGui/src/ofxGui.h \
- ../../../addons/ofxGui/src/ofxToggle.h \
- ../../../addons/ofxGui/src/ofxBaseGui.h \
- ../../../addons/ofxGui/src/ofxSlider.h \
- ../../../addons/ofxGui/src/ofxSliderGroup.h \
- ../../../addons/ofxGui/src/ofxGuiGroup.h \
- ../../../addons/ofxGui/src/ofxButton.h \
- ../../../addons/ofxGui/src/ofxPanel.h \
- ../../../addons/ofxGui/src/ofxLabel.h ../../../addons/ofxUI/src/ofxUI.h \
+ src/Module.h src/Channel.h ../../../addons/ofxUI/src/ofxUI.h \
  ../../../addons/ofxUI/src/ofxUIDefines.h \
  ../../../addons/ofxXmlSettings/src/ofxXmlSettings.h \
  ../../../addons/ofxXmlSettings/src/../libs/tinyxml.h \
@@ -262,7 +233,37 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxUI/src/ofxUICanvas.h \
  ../../../addons/ofxUI/src/ofxUIScrollableCanvas.h \
  ../../../addons/ofxUI/src/ofxUISuperCanvas.h \
- ../../../addons/ofxUI/src/ofxUITabBar.h
+ ../../../addons/ofxUI/src/ofxUITabBar.h src/Menu.h \
+ ../../../addons/ofxAndroid/src/ofxAndroid.h \
+ ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
+ ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
+ ../../../addons/ofxAndroid/src/ofxAndroidUtils.h \
+ ../../../addons/ofxOsc/src/ofxOsc.h \
+ ../../../addons/ofxOsc/src/ofxOscArg.h \
+ ../../../addons/ofxOsc/src/ofxOscMessage.h \
+ ../../../addons/ofxOsc/src/ofxOscSender.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
+ ../../../addons/ofxOsc/src/ofxOscBundle.h \
+ ../../../addons/ofxOsc/src/ofxOscReceiver.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
+ /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstddef \
+ ../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
+ ../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
+ ../../../addons/ofxGui/src/ofxGui.h \
+ ../../../addons/ofxGui/src/ofxToggle.h \
+ ../../../addons/ofxGui/src/ofxBaseGui.h \
+ ../../../addons/ofxGui/src/ofxSlider.h \
+ ../../../addons/ofxGui/src/ofxSliderGroup.h \
+ ../../../addons/ofxGui/src/ofxGuiGroup.h \
+ ../../../addons/ofxGui/src/ofxButton.h \
+ ../../../addons/ofxGui/src/ofxPanel.h \
+ ../../../addons/ofxGui/src/ofxLabel.h
 
 ../../../libs/openFrameworks/ofMain.h:
 
@@ -638,66 +639,6 @@ src/Module.h:
 
 src/Channel.h:
 
-../../../addons/ofxAndroid/src/ofxAndroid.h:
-
-../../../addons/ofxAndroid/src/ofAppAndroidWindow.h:
-
-../../../addons/ofxAndroid/src/ofxAndroidApp.h:
-
-../../../addons/ofxAndroid/src/ofxAndroidUtils.h:
-
-../../../addons/ofxOsc/src/ofxOsc.h:
-
-../../../addons/ofxOsc/src/ofxOscArg.h:
-
-../../../addons/ofxOsc/src/ofxOscMessage.h:
-
-../../../addons/ofxOsc/src/ofxOscSender.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
-
-../../../addons/ofxOsc/src/ofxOscBundle.h:
-
-../../../addons/ofxOsc/src/ofxOscReceiver.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
-
-/home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstddef:
-
-../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
-
-../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
-
-../../../addons/ofxGui/src/ofxGui.h:
-
-../../../addons/ofxGui/src/ofxToggle.h:
-
-../../../addons/ofxGui/src/ofxBaseGui.h:
-
-../../../addons/ofxGui/src/ofxSlider.h:
-
-../../../addons/ofxGui/src/ofxSliderGroup.h:
-
-../../../addons/ofxGui/src/ofxGuiGroup.h:
-
-../../../addons/ofxGui/src/ofxButton.h:
-
-../../../addons/ofxGui/src/ofxPanel.h:
-
-../../../addons/ofxGui/src/ofxLabel.h:
-
 ../../../addons/ofxUI/src/ofxUI.h:
 
 ../../../addons/ofxUI/src/ofxUIDefines.h:
@@ -801,3 +742,65 @@ src/Channel.h:
 ../../../addons/ofxUI/src/ofxUISuperCanvas.h:
 
 ../../../addons/ofxUI/src/ofxUITabBar.h:
+
+src/Menu.h:
+
+../../../addons/ofxAndroid/src/ofxAndroid.h:
+
+../../../addons/ofxAndroid/src/ofAppAndroidWindow.h:
+
+../../../addons/ofxAndroid/src/ofxAndroidApp.h:
+
+../../../addons/ofxAndroid/src/ofxAndroidUtils.h:
+
+../../../addons/ofxOsc/src/ofxOsc.h:
+
+../../../addons/ofxOsc/src/ofxOscArg.h:
+
+../../../addons/ofxOsc/src/ofxOscMessage.h:
+
+../../../addons/ofxOsc/src/ofxOscSender.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
+
+../../../addons/ofxOsc/src/ofxOscBundle.h:
+
+../../../addons/ofxOsc/src/ofxOscReceiver.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
+
+/home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/cstddef:
+
+../../../addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
+
+../../../addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
+
+../../../addons/ofxGui/src/ofxGui.h:
+
+../../../addons/ofxGui/src/ofxToggle.h:
+
+../../../addons/ofxGui/src/ofxBaseGui.h:
+
+../../../addons/ofxGui/src/ofxSlider.h:
+
+../../../addons/ofxGui/src/ofxSliderGroup.h:
+
+../../../addons/ofxGui/src/ofxGuiGroup.h:
+
+../../../addons/ofxGui/src/ofxButton.h:
+
+../../../addons/ofxGui/src/ofxPanel.h:
+
+../../../addons/ofxGui/src/ofxLabel.h:

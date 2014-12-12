@@ -12,6 +12,7 @@
 #include "Button.h"
 #include "Module.h"
 #include "Channel.h"
+#include "Menu.h"
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
 #include "ofxGui.h"
@@ -37,6 +38,7 @@
 #define CHANNELSELECT_PAGE 3
 #define AUTOMIX_PAGE 4
 #define SEARCH_PAGE 5
+#define CHANNELDISPLAY_PAGE 7
 #define SETTINGS_PAGE 6
 
 #define CHANNELSNUMBER 3
@@ -60,8 +62,6 @@ public:
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void windowResized(int w, int h);
-	/*void openKeyboard();
-	void closeKeyboard();*/
 
 	void touchDown(int x, int y, int id);
 	void touchMoved(int x, int y, int id);
@@ -70,7 +70,8 @@ public:
 	void touchCancelled(int x, int y, int id);
 	void swipe(ofxAndroidSwipeDir swipeDir, int id);
 	
-	void guiEvent(ofxUIEventArgs &e);
+	void moodEvent(ofxUIEventArgs &e);
+	
 
 	void pause();
 	void stop();
@@ -84,6 +85,7 @@ public:
 	void drawGrid();
 	void updateGridRepresentation();
 	int rankInTouchOrder(int);
+	void OSCcatch();
 	
 	//bool isInVector(vector<int> pagesVector, int value);
 
@@ -96,13 +98,20 @@ public:
 	int IDbuttonsCount;
 	int IDmodulesCount;
 	
+	Channel *channelSelected;
+	Channel *tempChannel;
+	bool isTempChannelCreated;
+	int wallSelected;
+	
 
 	char stringFile[7];
 	char* channelsNames[CHANNELSNUMBER] = {"CHANNEL 1",  "CHANNEL 2", "CHANNEL 3"};
 	
 	ofTrueTypeFont font;
+	ofTrueTypeFont titleFont;
 	ofImage background;
 	vector<Channel*> demoChannels;
+	vector<Channel*> myChannels;
 	
 	ofRectangle gridSize;
 	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
@@ -110,24 +119,22 @@ public:
 	vector<int> touchOrder;
 	int gridRepresentation[7][7];
 	
-	vector<Button*> GUIbuttons;
+	
 	vector<Module*> GUImodules;
+	vector<Button*> GUIbuttons;
 	
-	ofxUICanvas *guiAuto;
-	ofxUICanvas *guiSearch;
-	ofxUICanvas *guiMenuDeroulant; 
-	ofxUIDropDownList *wallList;
-	ofxUITextInput *automixTextInput;
-	ofxUITextInput *searchTextInput;
+	ofxUICanvas *guiChannelSettings;
+	ofxUISlider *settingsSliders[5];
+	ofxUIDropDownList *moodList;
 	
-	//ofxUISuperCanvas *guiTest;
-	//ofxUITextInput *testInput;
-	
-	Channel *testChannel;
+	Menu *appMenu;
 	
 	void exit(); 
 
+	
+	
 private:
 	ofxOscSender sender;
+	ofxOscReceiver receiver;
 	
 };
