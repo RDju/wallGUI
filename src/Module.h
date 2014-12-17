@@ -8,40 +8,56 @@
 
 #define GRID_RATIO 75
 
+#define SCREEN_TYPE 0
+#define LED_TYPE 1
+#define LEDSCREEN_TYPE 2
+#define TEXTURE_TYPE 3
+
 
 class Module{
 	private:
-		int type;
+		int typeSize;
+		int typeMat;
 		int ID;
 		ofPoint pos;
 		ofPoint size;
 		ofPoint touch;
+		ofTrueTypeFont font;
 		
 		bool isTouched;
 		bool isDeleted;
 		bool isWellPlaced;
 		
+		
+		
+		int bordureX = 63;
+		int bordureY = (((ofGetHeight()-200.0)/75.0 - (float)((int)((ofGetHeight()-200)/75)))*75 + 75) /2;
+		
 	
 	public:
 		ofPoint locationInGrid;
+		bool isSelected;
 	
-	Module(int type, int ID): type(type), ID(ID)
+	Module(int typeSize, int typeMat, int ID): typeSize(typeSize), ID(ID), typeMat(typeMat)
 	{
-		pos.set(0.1*ofGetWidth()+WIDTH_BUTTONS, ofGetHeight() - 0.15*ofGetHeight() - HEIGHT_BUTTONS, 0);
+		pos.set(bordureX, bordureY+50);//(0.1*ofGetWidth()+WIDTH_BUTTONS, ofGetHeight() - 0.15*ofGetHeight() - HEIGHT_BUTTONS, 0);
 		touch.set(0, 0, 0);
 		isTouched = false;
 		isDeleted=false;
 		isWellPlaced=true;
+		isSelected=false;
 		locationInGrid.set(-1, -1);
 		
-		switch(type){
+		font.loadFont("OpenSans-Light.ttf", 12);
+		
+		switch(typeSize){
+			case 0:
+				size.set(WIDTH_13*75, HEIGHT_13*75);
+				break;
 			case 1:
-				size.set(WIDTH_13*75-1, HEIGHT_13*75);
+				size.set(WIDTH_24*75, HEIGHT_24*75);
 				break;
 			case 2:
-				size.set(WIDTH_24*75-1, HEIGHT_24*75);
-				break;
-			case 3:
 				size.set(WIDTH_27*75-1, HEIGHT_27*75);
 				break;
 		}
@@ -51,13 +67,35 @@ class Module{
 	void draw() {
 		
 		ofPushStyle();
-		ofFill();
-		if (isWellPlaced) ofSetColor(127);
-		else ofSetColor(127, 50, 50);
-		ofRect(pos.x, pos.y, size.x, size.y);
-		ofNoFill();
-		ofSetColor(255);
-		ofRect(pos.x, pos.y, size.x, size.y);
+			ofFill();
+			ofSetColor(127);
+			ofRect(pos.x, pos.y, size.x, size.y);
+			
+			if (!isWellPlaced){
+				ofSetColor(255, 0, 0);
+				ofLine(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+			}
+			
+			ofNoFill();
+			if (isSelected && ID != -1) ofSetColor(255, 0, 0);
+			else ofSetColor(255);
+			ofRect(pos.x, pos.y, size.x, size.y);
+			
+			ofSetColor(40);
+			switch(typeMat){
+				case SCREEN_TYPE:
+					font.drawString("Screen", pos.x+5, pos.y+5 + font.getSize());
+					break;
+				case LED_TYPE:
+					font.drawString("LED", pos.x+5, pos.y+5+ font.getSize());
+					break;
+				case LEDSCREEN_TYPE:
+					font.drawString("LED screen", pos.x+5, pos.y+5+ font.getSize());
+					break;
+				case TEXTURE_TYPE:
+					font.drawString("texture", pos.x+5, pos.y+5+ font.getSize());
+					break;
+			}
 		ofPopStyle();
 	}
 	
@@ -73,36 +111,49 @@ class Module{
 		}
 	}
 	bool isAlone(Module *module){
-		if (( module->pos.x + module->size.x + 75*1.7 <= this->pos.x )
-			|| (module->pos.y + module->size.y +75 <= this->pos.y)
-			|| (module->pos.x - 75*1.7 >= this->pos.x+this->size.x)
-			|| (module->pos.y  - 75 >= this->pos.y+this->size.y))
+		if (( module->pos.x + module->size.x -10 <= this->pos.x &&  module->pos.y + module->size.y -10 <= this->pos.y)
+			|| (module->pos.x +10 >= this->pos.x+this->size.x && module->pos.y + module->size.y -10 <= this->pos.y)
+			|| (module->pos.x + module->size.x -10 <= this->pos.x && module->pos.y +10 >= this->pos.y + this->size.y)
+			|| (module->pos.x +10 >= this->pos.x+this->size.x && module->pos.y +10 >= this->pos.y + this->size.y)
+			
+			|| (module->pos.x + module->size.x -10 <= this->pos.x-75*1.7)
+			|| (module->pos.x +10 >= this->pos.x + this->size.x + 75*1.7)
+			|| (module->pos.y + module->size.y -10 <= this->pos.y - 75*1.7)
+			|| (module->pos.y +10 >= this->pos.y+this->size.y + 75 * 1.7))
 				return true;
 		else return false;
 	}
 	
-	void onTouchDown(int x, int y){
-		if (x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y ) {
-			isTouched = true;
-			touch.set(x-pos.x, y-pos.y);
-		}
+	bool onTouchDown(int x, int y){
+			if (x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y ) {
+				isTouched = true;
+				isSelected = true;
+				touch.set(x-pos.x, y-pos.y);
+				return true;
+			}
+		return false;
 	}
 	void onTouchUp(int x, int y){
 		isTouched = false;
+		if (!(x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y))
+			isSelected = false;
 	}
 	void onTouchMove(int x, int y){
 		//si dans le rectangle
-		if ( x-touch.x > 0.09*ofGetWidth()+WIDTH_BUTTONS && x+(size.x-touch.x) < ofGetWidth() && y-touch.y > 0 && y+(size.y-touch.y) < ofGetHeight()-0.15*ofGetHeight()-HEIGHT_BUTTONS){
-		   
-		   if (isTouched) {
-		   		if ( (int)abs(x-touch.x) % (int)(1.7*GRID_RATIO) < 50 && (int)abs(y - touch.y) % GRID_RATIO < 50 ){
-		   			pos.set(x-touch.x - ((int)(x-touch.x) % int(1.7*GRID_RATIO))+2, (y-touch.y) - ((int)(y-touch.y) % GRID_RATIO));
-		   			locationInGrid.set((int)((x-touch.x)/(GRID_RATIO*1.7)-4), (int)((y-touch.y)/GRID_RATIO));
-		   			//ofLogNotice() << locationInGrid.x << " " << locationInGrid.y;
-		   		}
-		   		/*else
-		   			pos.set(x-touch.x,y-touch.y);*/
-		   	}
+		if (ID != -1){
+			if ( x-touch.x > bordureX && x+(size.x-touch.x) < ofGetWidth()-bordureX && y-touch.y > bordureY+50 && y+(size.y-touch.y) < ofGetHeight()-150){ 
+			  // ofLogNotice()
+			   if (isTouched) {
+			   
+			   		if ( (int)abs(x-touch.x - bordureX) % (int)(1.7*GRID_RATIO) < 50 && (int)abs(y - touch.y - bordureY - 50) % GRID_RATIO < 50 ){
+			   		
+			   			pos.set(x-touch.x - ((int)(x-touch.x - bordureX) % int(1.7*GRID_RATIO)), (y-touch.y) - ((int)(y-touch.y - bordureY - 50) % GRID_RATIO));
+			   			//locationInGrid.set((int)((x-touch.x- bordureX)/(GRID_RATIO*1.7)-4), (int)((y-touch.y- bordureY - 50)/GRID_RATIO));
+			   		}
+			   		/*else
+			   			pos.set(x-touch.x,y-touch.y);*/
+			   	}
+			}
 		}
 	}
 	
@@ -112,8 +163,8 @@ class Module{
 	}
 	
 	
-	void setType(int type){
-		this->type=type;
+	void setTypeSize(int typeSize){
+		this->typeSize=typeSize;
 	}
 	void setID(int ID){
 		this->ID=ID;
@@ -131,11 +182,17 @@ class Module{
 	bool getIsDeleted(){
 		return isDeleted;
 	}
+	void setIsDeleted(bool isDeleted){
+		this->isDeleted=isDeleted;
+	}
 	int getID(){
 		return ID;
 	}
-	int getType(){
-		return type;
+	int getTypeSize(){
+		return typeSize;
+	}
+	int getTypeMat(){
+		return typeMat;
 	}
 	bool getIsTouched(){
 		return isTouched;

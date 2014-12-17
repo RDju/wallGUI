@@ -30,7 +30,7 @@ class Menu{
 			//zones de texte
 			
 			ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
-			ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
+			ofxUIColor cb2 = ofxUIColor(40, 40, 40, 200); //BG liste déroulante
 		    ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
 		    ofxUIColor coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
 		    ofxUIColor cf = ofxUIColor(255, 255, 255, 255); //texte non sélectionné
@@ -42,7 +42,7 @@ class Menu{
 			guiAuto = new ofxUICanvas( 1.0/4*ofGetWidth()+10, ofGetHeight()-HEIGHT_BUTTONS*3.0/4, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
 			guiAuto->setFont("OpenSans-Light.ttf");
 			guiAuto->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiAuto->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+			guiAuto->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
 			automixTextInput = guiAuto->addTextInput("Automix", "Automix", -1); 
 			automixTextInput->setAutoUnfocus(true);
 			automixTextInput->setAutoClear(true);
@@ -53,15 +53,16 @@ class Menu{
 			guiSearch = new ofxUICanvas(5.0/8*ofGetWidth()+10, ofGetHeight()-HEIGHT_BUTTONS*3.0/4, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
 			guiSearch->setFont("OpenSans-Light.ttf");
 			guiSearch->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiSearch->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+			guiSearch->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
 			searchTextInput = guiSearch->addTextInput("Search", "Search", -1);
 			//searchTextInput->setAutoClear(true);
 			
 			//Menu déroulant
-			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth(), HEIGHT_BUTTONS/2, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
+			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth()-5, HEIGHT_BUTTONS/2 - 15, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
 			guiMenuDeroulant->setFont("OpenSans-Light.ttf");
 			guiMenuDeroulant->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiMenuDeroulant->setUIColors( cb2, co, coh, cf, cfh, cp, cpo );
+			
+			//guiMenuDeroulant->setDrawPadding(50);
 			
 		    vector<string> names;
 		    names.push_back("WALL DE LA CUISINE");    
@@ -74,6 +75,10 @@ class Menu{
 			wallList ->setShowCurrentSelected(true); 
 			wallList->setAutoClose(true);
 			ofAddListener(guiMenuDeroulant->newGUIEvent, this, &Menu::menuEvent);
+			
+			guiMenuDeroulant->setUIColors( cb2, cb, coh, cf, cfh, cp, cpo );
+			
+			wallListAction = -2;
 		
 		}
 		
@@ -142,10 +147,15 @@ class Menu{
 		
 		void menuEvent(ofxUIEventArgs &e){
 		    string name = e.widget->getName();
-		    if(name == "WALLS")
+		    if(name == "WALLS" && !((ofxUIDropDownList *)e.widget)->isOpen())
 		    {
+		    	
 		        ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
 		        vector<ofxUIWidget *> &selected = ddlist->getSelected(); 
+		        
+		       	if (ddlist->getSelectedIndice() == ddlist->toggles.size() -1)
+		       		wallListAction = -1;
+		       	else wallListAction = ddlist->getSelectedIndice();
 		    }
 		}
 		
@@ -161,6 +171,8 @@ class Menu{
 		ofxUIDropDownList *wallList;
 		ofxUITextInput *automixTextInput;
 		ofxUITextInput *searchTextInput;
+		
+		int wallListAction;
 	
 
 };

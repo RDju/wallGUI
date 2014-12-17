@@ -13,6 +13,7 @@
 #include "Module.h"
 #include "Channel.h"
 #include "Menu.h"
+#include "Wall.h"
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
 #include "ofxGui.h"
@@ -20,19 +21,14 @@
 //#include "ofxUITextInput.h"
 
 
-#define HOST "192.168.0.33"
-#define PORT 2323
+#define HOST "192.168.1.17"
+#define PORT 9001
+#define RECEIVEPORT 9003
 
 #define X_BUTTONS 0.73*ofGetWidth()
 #define Y_BUTTONS 0.17*ofGetHeight()
 
 //pagesLevel
-/*#define INTRO_PAGE 1
-#define MENU_PAGE 2
-#define WALLCREATION_PAGE 3
-#define CHANNELCREATION_PAGE 4
-#define CHANNELSELECT_PAGE 7*/
-
 #define HOME_PAGE 1
 #define WALLCREATION_PAGE 2
 #define CHANNELSELECT_PAGE 3
@@ -43,12 +39,8 @@
 
 #define CHANNELSNUMBER 3
 
-#define SCREEN_MAX_NUMBER 5
-
 #define XGRID 
 #define YGRID 
-
-
 
 
 class ofApp : public ofxAndroidApp {
@@ -56,7 +48,6 @@ class ofApp : public ofxAndroidApp {
 public:
 
 	void setup();
-	void gridSetup();
 	void update();
 	void draw();
 	void keyPressed(int key);
@@ -81,10 +72,7 @@ public:
 	bool backPressed();
 	void okPressed();
 	void cancelPressed();
-	
-	void drawGrid();
-	void updateGridRepresentation();
-	int rankInTouchOrder(int);
+
 	void OSCcatch();
 	
 	//bool isInVector(vector<int> pagesVector, int value);
@@ -96,13 +84,13 @@ public:
 	bool isButtonActioned;
 	int activChannel;
 	int IDbuttonsCount;
-	int IDmodulesCount;
 	
 	Channel *channelSelected;
 	Channel *tempChannel;
 	bool isTempChannelCreated;
 	int wallSelected;
 	
+	vector<Button*> GUIbuttons;
 
 	char stringFile[7];
 	char* channelsNames[CHANNELSNUMBER] = {"CHANNEL 1",  "CHANNEL 2", "CHANNEL 3"};
@@ -112,26 +100,16 @@ public:
 	ofImage background;
 	vector<Channel*> demoChannels;
 	vector<Channel*> myChannels;
-	
-	ofRectangle gridSize;
-	ofRectangle gridLines[13];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
-	
-	vector<int> touchOrder;
-	int gridRepresentation[7][7];
-	
-	
-	vector<Module*> GUImodules;
-	vector<Button*> GUIbuttons;
+
 	
 	ofxUICanvas *guiChannelSettings;
 	ofxUISlider *settingsSliders[5];
 	ofxUIDropDownList *moodList;
 	
 	Menu *appMenu;
+	Wall *appWall;
 	
 	void exit(); 
-
-	
 	
 private:
 	ofxOscSender sender;

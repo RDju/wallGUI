@@ -7,22 +7,26 @@ using namespace std;
 void ofApp::setup(){
 
 	background.loadImage("bckgrimgWhite.png");
+	//background.loadImage("http://192.168.1.14:8000/pict1.jpg");
 	ofEnableAlphaBlending();
 	font.loadFont("OpenSans-Light.ttf", 15);
 	titleFont.loadFont("open-sansbold-italic.ttf", 20);
 	
 	pageLevel=HOME_PAGE;
-	previousPageLevel=0;
+	previousPageLevel = 0;
 	buttonNumber=-1;
 	isButtonActioned = false;
 	IDbuttonsCount = 20;
-	IDmodulesCount = 0;
+
 	//channelSelected = none;
 	isTempChannelCreated = false;
 	
 	
 	appMenu = new Menu();
 	appMenu->setup();
+	
+	appWall = new Wall();
+	appWall->setup();
 	
 	//Channels demo Home page
 	string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel"};
@@ -37,8 +41,7 @@ void ofApp::setup(){
 		myChannels[i]->playButton->setID(IDbuttonsCount++);
 	}
 	
-	gridSize.set( (float)(0.09*ofGetWidth()+WIDTH_BUTTONS), 0, (float)(ofGetWidth()-0.09*ofGetWidth()-WIDTH_BUTTONS), (float)(ofGetHeight()-0.15*ofGetHeight()-HEIGHT_BUTTONS));
-	gridSetup();
+	
 	
 	//OSC message
 	sender.setup( HOST, PORT );
@@ -46,7 +49,7 @@ void ofApp::setup(){
 	m.setAddress( "/INIT");
 	sender.sendMessage( m );
 	
-	receiver.setup( PORT+1 );
+	receiver.setup( RECEIVEPORT );
 	
 	
 	//Buttons
@@ -60,8 +63,10 @@ void ofApp::setup(){
 	GUIbuttons.push_back(new Button("random", 14, 25+2*(1.0/2*2.0/5*ofGetWidth()), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "RANDOM", "RANDOM", 40));
 	GUIbuttons.push_back(new Button("play", 15, ofGetWidth()-25-(1.0/2*2.0/5*ofGetWidth()-10), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "PLAY", "PLAY", 40));
 	
+	
 	//Settings GUI
 	ofxUIColor cb = ofxUIColor(0, 0, 0, 125); //Background 
+	ofxUIColor cbgui = ofxUIColor(0, 0, 0, 0);
 	ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
 	ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
 	ofxUIColor coh = ofxUIColor(40, 40, 40, 255); //tour quand sélectionné
@@ -76,10 +81,12 @@ void ofApp::setup(){
 	guiChannelSettings->setFont("OpenSans-Light.ttf");
 	guiChannelSettings->setWidgetFontSize(OFX_UI_FONT_LARGE);
 	
-	string slidersName[] = {"imgVidRate", "transitionSpeed", "colorHarmony", "sensorInput", "sensorSensitivity"};
+	
+	string slidersName[] = {"imgVidRate", "transitionSpeed", "colorHarmony", "sensor", "none"};
 	for (int i = 0; i < 5; i++){
 		settingsSliders[i] = guiChannelSettings->addSlider(slidersName[i], 0.0, 100.0, 0.0);
 	}
+	//settingsSliders[5]->setVisible(false);
 	
 	vector<string> moodsNames;
 	moodsNames.push_back("None");
@@ -87,14 +94,15 @@ void ofApp::setup(){
 	moodsNames.push_back("Psychedelic");
 	moodsNames.push_back("Sleep");
 
-	moodList = guiChannelSettings->addDropDownList("Select your mood", moodsNames, 1.0/4*ofGetWidth(), 0, 20);
+	moodList = guiChannelSettings->addDropDownList("Select your mood", moodsNames, 1.0/3*ofGetWidth(), 0, 20);
 	
 	moodList ->setAllowMultiple(false);
 	moodList ->setShowCurrentSelected(true); 
 	moodList->setAutoClose(true);
 	
 	ofAddListener(guiChannelSettings->newGUIEvent, this, &ofApp::moodEvent);
-	guiChannelSettings->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+	
+	guiChannelSettings->setUIColors( cb, cbgui, coh, cf, cfh, cp, cpo );
 	guiChannelSettings->setVisible(false);
 }
 
@@ -111,6 +119,10 @@ void ofApp::moodEvent(ofxUIEventArgs &e){
 void ofApp::update() {
 
 	appMenu->update(wallSelected);
+	if (appMenu->wallListAction == -1) pageLevel = WALLCREATION_PAGE;
+	else if (appMenu->wallListAction != -2) wallSelected = appMenu->wallListAction;
+	appMenu->wallListAction = -2;
+	
 	
 	OSCcatch();
 	
@@ -168,7 +180,7 @@ void ofApp::update() {
     		
     		case 11://play channel button
     			m.setAddress( "/PLAY/CHANNEL"/*+ofToString(channelSelected)*/);
-    			m.addIntArg(channelSelected->getID());
+    			m.addIntArg(channelSelected->ID);
 	        	sender.sendMessage( m );
     			break;
     			
@@ -184,28 +196,21 @@ void ofApp::update() {
     			for (int i = 0; i < 5; i++){
     				settingsSliders[i]->setValue((rand()%4) * 25);
     			}
+    			moodList->setSelected((rand()%(moodList->toggles.size()-1))+1);
     			break;
     			
     		case 15:
     			//play automix
     			m.setAddress( "/AUTOMIX/PLAY");
     			m.addStringArg(appMenu->automixTextInput->getTextString());
-    			for (int i = 0; i < 5; i++)
-    				m.addIntArg(settingsSliders[i]);
+    			for (int i = 0; i < 4; i++){
+    				m.addIntArg((int32_t)settingsSliders[i]->getValue());
+    			}
+    			if (moodList->getSelectedIndeces().size() > 0)
+    				m.addIntArg((int32_t)moodList->getSelectedIndeces()[0]);
+    			else m.addIntArg(-1);
 	        	sender.sendMessage( m );
     			break;
-    			
-    		/*case 10:
-    			if (GUImodules.size() < SCREEN_MAX_NUMBER){
-    				GUImodules.push_back(new Module(buttonNumber - 7, IDmodulesCount++));
-    				touchOrder.push_back(IDmodulesCount-1);
-    			}
-    			if (GUImodules.size() == SCREEN_MAX_NUMBER){
-    				for (int i=8; i<11; i++)
-    					GUIbuttons[i]->setIsAvailable(false);
-    			}infoFont.getSize()
-    			break;*/
-    			
     	}
     	if (buttonNumber >=20 && buttonNumber <=30) {
     		pageLevel = CHANNELDISPLAY_PAGE;
@@ -216,83 +221,17 @@ void ofApp::update() {
     
     
     switch(pageLevel){
-    	case CHANNELSELECT_PAGE:
-    		//set searchGui visible
-    		//if menu.searchText != Search, set searchText=menu.searchText
-    		break;
     	case AUTOMIX_PAGE:
     		guiChannelSettings->setVisible(true);
     		if(!isTempChannelCreated){
+    			ofLogNotice() << "create a new channel";
     			tempChannel = new Channel();
     			isTempChannelCreated = true;
+    			
     		}
     		break;
-    
-    }
-    
-    
-    //********************************** WALL CREATION ***********************************************//
-    //suppression des modules
-    for (size_t i = 0; i<GUImodules.size(); i++){
-    	if (GUImodules[i]->getIsDeleted()){
-    		GUImodules.erase(GUImodules.begin()+i);//delete module 
-    		for (size_t j=i; j<GUImodules.size(); j++){//decrement the ID of module following the one just deleted
-    			GUImodules[j]->setID(GUImodules[j]->getID()-1);
-    		}https://mail.google.com/mail/u/0/#inbox
-    		IDmodulesCount--;
-    		for (size_t j=0; j<touchOrder.size();j++){//remove the ID from the deleted module from touchOrder
-    			if (touchOrder[j]==i){
-    				touchOrder.erase(touchOrder.begin() + j);
-    				for (size_t k=0; k<touchOrder.size();k++)
-    					if (touchOrder[k] > i) touchOrder[k]--;
-    				break;
-    			}
-    		}
-    		
-    		for (int i=8; i<11; i++)
-    			GUIbuttons[i]->setIsAvailable(true);
-    	}
-    }
-    
-    //Detect collision
-    for (int i = 0; i< GUImodules.size(); i++){
-    	GUImodules[i]->setIsWellPlaced(true);
-    }
-    for (size_t i = 0; i< GUImodules.size(); i++){
-    	for (size_t j = 0; j< GUImodules.size(); j++){
-    		if(j!=i && GUImodules[i]->isCollision(GUImodules[j]) && rankInTouchOrder(i)>rankInTouchOrder(j))
-    			GUImodules[i]->setIsWellPlaced(false);
-    	}
-    }
-    //Alone module
-    if (GUImodules.size() > 1){
-	    for (size_t i = 0; i< GUImodules.size(); i++){
-	    	if (GUImodules[i]->getPos().y < gridSize.getHeight()){
-		    	bool alone=true;
-		    	for (size_t j = 0; j< GUImodules.size(); j++){
-		    		if (i!=j && !GUImodules[i]->isAlone(GUImodules[j])){
-		    			alone = false;
-		    		}
-		    	}
-		    	if(alone) GUImodules[i]->setIsWellPlaced(false);
-		   	}
-	    }
-	}
-	
-	
-	//************************************************************************//
-    
-    //updateGridRepresentation();
-    
-    //On change de background si besoin
-    /*ostringstream convert; 
-	convert << pageLevel;
-	if (pageLevel!=previousPageLevel ){
-		strcpy (stringFile, (convert.str()).c_str());
-	  	strcat (stringFile,".png");
-	   
-	    background.loadImage(stringFile);
-    }*/
+    }    
+	appWall->update();
 }
 
 
@@ -356,18 +295,12 @@ void ofApp::draw() {
     		break;
     		
     	case WALLCREATION_PAGE:
-    	
-    		drawGrid();
     		
-    		ofPushStyle();
-    		ofFill();
-    		ofSetColor(10);
-    		ofRect(0.03*ofGetWidth(), 0.03*ofGetWidth(), WIDTH_BUTTONS+ 0.03*ofGetWidth(), ofGetHeight() - 2 * 0.045*ofGetHeight());
-    		ofPopStyle();
     		
-    		for (size_t i = 0; i<GUImodules.size();i++){
-    			GUImodules[touchOrder[i]]->draw();
-    		}
+    		if (!appWall->isLibraryOpened)
+    			appWall->draw();
+    		else appWall->drawLibrary();
+    		
     		break;
     		
     	case CHANNELDISPLAY_PAGE:
@@ -378,11 +311,11 @@ void ofApp::draw() {
     		
     }
     
-    /*for (size_t i=0; i < menuButtons.size(); i++){
-    	if (menuButtons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
+    for (size_t i=0; i < GUIbuttons.size(); i++){
+    	if (GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
     		GUIbuttons[i]->draw();
     	}
-    }*/
+    }
     
     appMenu->draw();
 }
@@ -391,14 +324,19 @@ void ofApp::draw() {
 
 void ofApp::OSCcatch(){
 
+	//ofLogNotice() << "temp chan created" << isTempChannelCreated;
+	//ofLogNotice() << "have message" << receiver.hasWaitingMessages();
+
 	ofxOscMessage rm; 
 	if (isTempChannelCreated && receiver.hasWaitingMessages()){
 		rm.clear();
 		receiver.getNextMessage(&rm);
 	
-		if(rm.getAddress() == "/AUTOMIX/IMAGE"){
+		if(rm.getAddress() == "/SNAPSHOT"){
 			tempChannel->automixImageFound = true;
 			tempChannel->channelImage.loadImage(rm.getArgAsString(0));
+			
+			ofLogNotice() << rm.getArgAsString(0);
 		}
 	}	
 }
@@ -406,125 +344,107 @@ void ofApp::OSCcatch(){
 //--------------------------------------------------------------
 void ofApp::touchDown(int x, int y, int id){//On met le doigt
 
-	// Regarde si des boutons ont été sélectionnés
-	
-	//dans le menu
-	for (size_t i=0; i < appMenu->getButtons().size(); i++){
-		appMenu->getButtons()[i]->isTouchedDown(x, y);
-	}
-	
-	//Channel buttons
-	for (int i=0; i < demoChannels.size(); i++){
-		demoChannels[i]->playButton->isTouchedDown(x, y);
-	}
-	
-	for (int i=0; i < myChannels.size(); i++){
-		myChannels[i]->playButton->isTouchedDown(x, y);
-	}
-	
-	//globaux
-	for (size_t i=0; i < GUIbuttons.size(); i++){
-		//if(isInVector(GUIbuttons[i]->getAssociatedPages(), pageLevel)){
-		if (GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
-			GUIbuttons[i]->isTouchedDown(x, y);
+		// Regarde si des boutons ont été sélectionnés
+		
+		//dans le menu
+		for (size_t i=0; i < appMenu->getButtons().size(); i++){
+			appMenu->getButtons()[i]->isTouchedDown(x, y);
 		}
-	}
-	
-	if (pageLevel == WALLCREATION_PAGE){
-		//Trie les modules par ordre de dernière sélection
-		for (size_t i=0; i < GUImodules.size(); i++){
-			GUImodules[touchOrder[i]]->onTouchDown(x, y);
-			if (GUImodules[touchOrder[i]]->getIsTouched()){
-				touchOrder.push_back(touchOrder[i]);
-				touchOrder.erase(touchOrder.begin()+i);
+		
+		//Channel buttons
+		for (int i=0; i < demoChannels.size(); i++){
+			demoChannels[i]->playButton->isTouchedDown(x, y);
+		}
+		
+		for (int i=0; i < myChannels.size(); i++){
+			myChannels[i]->playButton->isTouchedDown(x, y);
+		}
+		
+		//globaux
+		for (size_t i=0; i < GUIbuttons.size(); i++){
+			//if(isInVector(GUIbuttons[i]->getAssociatedPages(), pageLevel)){
+			if (GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
+				GUIbuttons[i]->isTouchedDown(x, y);
 			}
 		}
-		//Ne laisse sélectionné que celui du dessus en cas de 2 modules supperposés
-		for (size_t i=0; i < GUImodules.size(); i++){
-			for (int j=0; j<GUImodules.size();j++){
-					ofLogNotice() << rankInTouchOrder(j) << " " << rankInTouchOrder(i);
-					if(i!=j && GUImodules[j]->getIsTouched() && rankInTouchOrder(j)<rankInTouchOrder(i)){
-						ofLogNotice() << "you're not alone";
-						GUImodules[i]->setIsTouched(false);
-					}
-			}
+	
+		if (pageLevel == WALLCREATION_PAGE){
+			appWall->touchDown(x, y);
 		}
-	}
 }
 
 //--------------------------------------------------------------
 void ofApp::touchMoved(int x, int y, int id){
 	if (pageLevel == WALLCREATION_PAGE){
-		for (size_t i=0; i < GUImodules.size(); i++){
-			GUImodules[i]->onTouchMove(x, y);
-		}
+		appWall->touchMoved(x, y);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 	
-	//Regarde si un bouton a été actionné et récupère l'ID si c'est le cas
 	
-	//Menu buttons
-	for (size_t i=0; i < appMenu->getButtons().size(); i++){
-		if (appMenu->getButtons()[i]->isTouchedUp(x, y)){
-			buttonNumber = appMenu->getButtons()[i]->getID();
-			isButtonActioned = true;
-			continue;
-		}
-	}
-	
-	//Channel buttons
-	for (int i=0; i < demoChannels.size(); i++){
-		if (demoChannels[i]->playButton->isTouchedUp(x, y)){
-			buttonNumber = demoChannels[i]->playButton->getID();
-			channelSelected = demoChannels[i];
-			isButtonActioned = true;
-			previousPageLevel = pageLevel;
-			continue;
-		}
-	}
-	
-	for (int i=0; i < myChannels.size(); i++){
-		if (myChannels[i]->playButton->isTouchedUp(x, y)){
-			buttonNumber = myChannels[i]->playButton->getID();
-			channelSelected = myChannels[i];
-			isButtonActioned = true;
-			previousPageLevel = pageLevel;
-			continue;
-		}
-	}
-			
-	//global buttons
-	for (size_t i=0; i < GUIbuttons.size(); i++){
-		if ((GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1 )&& GUIbuttons[i]->isTouchedUp(x, y)){
-			buttonNumber = GUIbuttons[i]->getID();
-			isButtonActioned = true;
-			continue;
-		}
-	}
-	
-	//Rend inactif tous les boutons autre que le nouvel actif
-	if (isButtonActioned){
-		for(size_t i=0; i < GUIbuttons.size(); i++){
-			if (buttonNumber != GUIbuttons[i]->getID()){
-				GUIbuttons[i]->setIsActiv(false);
+		//Regarde si un bouton a été actionné et récupère l'ID si c'est le cas
+		
+		//Menu buttons
+		for (size_t i=0; i < appMenu->getButtons().size(); i++){
+			if (appMenu->getButtons()[i]->isTouchedUp(x, y)){
+				buttonNumber = appMenu->getButtons()[i]->getID();
+				isButtonActioned = true;
+				continue;
 			}
 		}
-	}
-	
-	
-	if (pageLevel == WALLCREATION_PAGE){//Vérifie si des modules sont touchés
-		for (size_t i=0; i < GUImodules.size(); i++){
-			GUImodules[i]->onTouchUp(x, y);
-		}
-	} else if (pageLevel == HOME_PAGE || pageLevel == CHANNELSELECT_PAGE){//vérifie le clic sur un channel
-		for (size_t i = 0; i < demoChannels.size(); i++){
-			if (demoChannels[i]->isTouched(x, y)){
+		
+		//Channel buttons
+		for (int i=0; i < demoChannels.size(); i++){
+			if (demoChannels[i]->playButton->isTouchedUp(x, y)){
+				buttonNumber = demoChannels[i]->playButton->getID();
 				channelSelected = demoChannels[i];
+				isButtonActioned = true;
 				previousPageLevel = pageLevel;
-				pageLevel = CHANNELDISPLAY_PAGE;
+				continue;
+			}
+		}
+		
+		for (int i=0; i < myChannels.size(); i++){
+			if (myChannels[i]->playButton->isTouchedUp(x, y)){
+				buttonNumber = myChannels[i]->playButton->getID();
+				channelSelected = myChannels[i];
+				isButtonActioned = true;
+				previousPageLevel = pageLevel;
+				continue;
+			}
+		}
+				
+		//global buttons
+		for (size_t i=0; i < GUIbuttons.size(); i++){
+			if ((GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1 )&& GUIbuttons[i]->isTouchedUp(x, y)){
+				buttonNumber = GUIbuttons[i]->getID();
+				isButtonActioned = true;
+				continue;
+			}
+		}
+		
+		//Rend inactif tous les boutons autre que le nouvel actif
+		if (isButtonActioned){
+			for(size_t i=0; i < GUIbuttons.size(); i++){
+				if (buttonNumber != GUIbuttons[i]->getID()){
+					GUIbuttons[i]->setIsActiv(false);
+				}
+			}
+		}
+		
+	if (!appMenu->wallList->isOpen() && !appMenu->automixTextInput->isClicked() && !appMenu->searchTextInput->isClicked()){
+		
+		if (pageLevel == WALLCREATION_PAGE){//Vérifie si des modules sont touchés
+			appWall->touchUp(x, y);
+		} else if (pageLevel == HOME_PAGE || pageLevel == CHANNELSELECT_PAGE){//vérifie le clic sur un channel
+			for (size_t i = 0; i < demoChannels.size(); i++){
+				if (demoChannels[i]->isTouched(x, y)){
+					channelSelected = demoChannels[i];
+					previousPageLevel = pageLevel;
+					pageLevel = CHANNELDISPLAY_PAGE;
+				}
 			}
 		}
 	}
@@ -532,11 +452,11 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 
 //--------------------------------------------------------------
 void ofApp::touchDoubleTap(int x, int y, int id){
-	if (pageLevel == WALLCREATION_PAGE){
+	/*if (pageLevel == WALLCREATION_PAGE){
 		for (size_t i=0; i < GUImodules.size(); i++){
 			GUImodules[i]->onDoubleClick(x, y);//Not used
 		}
-	}
+	}*/
 }
 //--------------------------------------------------------------
 
@@ -552,82 +472,21 @@ void ofApp::touchDoubleTap(int x, int y, int id){
 
 void ofApp::keyPressed(int key){
 	
+	switch(key){
+		case 10://return
+			buttonNumber = AUTOMIX_PAGE;
+			isButtonActioned = true;
+			break;
+	}
 }
 
 void ofApp::exit()
 {
 }
-void ofApp::gridSetup(){
 
-	/*for (int i = 1; i <= 6;i++){//verticales
-		gridLines[i-1].set(i*1.7*GRID_RATIO, 0.03*ofGetHeight(), i*1.7*GRID_RATIO, gridSize.getHeight()-0.03*ofGetHeight());
-	}
-	for (int i = 0; i < 7;i++){//horizontales
-		gridLines[i+6].set(0.03*ofGetWidth(), (i+1)*GRID_RATIO, gridSize.getWidth() - 0.06*ofGetWidth(), (i+1)*GRID_RATIO);
-	}*/
-	
-	int decalage = 0;
-	for (int i = 0; i < 6;i++){
-		if (i==2 || i==3) decalage = 1;
-		if(i==4 || i==5) decalage = 2;
-		gridLines[i].set((i+4)*1.7*GRID_RATIO-decalage, 0.03*ofGetHeight(), (i+4)*1.7*GRID_RATIO-decalage, gridSize.getHeight()-0.03*ofGetHeight());
-	}
-	for (int i = 0; i < 7;i++){
-		gridLines[i+6].set(gridSize.getX()+0.03*ofGetWidth(), (i+1)*GRID_RATIO, ofGetWidth() - 0.03*ofGetWidth(), (i+1)*GRID_RATIO);
-	}
-	
-	for(int i=0; i<7; i++){
-		for (int j=0; j<7; j++){
-			gridRepresentation[i][j] = 0;
-		}
-	}
-}
 
 //--------------------------------------------------------------
-void ofApp::drawGrid(){
 
-	for (int i=0; i<13; i++){
-		ofPushStyle();
-    	ofSetColor(200);
-    	ofLine(gridLines[i].getX(), gridLines[i].getY(), gridLines[i].getWidth(), gridLines[i].getHeight());
-    	ofPopStyle();
-	}
-}
-
-
-
-//Argument : ID of the module
-//return : order rank 
-int ofApp::rankInTouchOrder(int value){
-	for (size_t i = 0; i<touchOrder.size();i++){
-		if (touchOrder[i]==value) return i;
-	}
-	return -1;
-}
-
-//fill an array corresponding to the grid with . if the case is empty and # if there is a module in the case.
-void ofApp::updateGridRepresentation(){
-	for(int i=0; i<7; i++){
-		for (int j=0; j<7; j++){
-			gridRepresentation[i][j] = 0;
-		}
-	}
-	for(int i=0; i<GUImodules.size();i++){
-	
-	
-		//ofLogNotice() << "lol :" << GUImodules[i]->locationInGrid.x;
-		//gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)] = 1;
-		
-		/*if (GUImodules[i]->getType()==2){
-			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
-			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+2]=1;
-		} else if (GUImodules[i]->getType()==3){
-			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
-			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)+1][(int)(GUImodules[i]->locationInGrid.y)]=1;
-			gridRepresentation[(int)(GUImodules[i]->locationInGrid.x)+1][(int)(GUImodules[i]->locationInGrid.y)+1]=1;
-		}*/
-	}
-}
 
 void ofApp::keyReleased(int key){}
 void ofApp::windowResized(int w, int h){}

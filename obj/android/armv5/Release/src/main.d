@@ -233,7 +233,7 @@ obj/android/armv5/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxUI/src/ofxUICanvas.h \
  ../../../addons/ofxUI/src/ofxUIScrollableCanvas.h \
  ../../../addons/ofxUI/src/ofxUISuperCanvas.h \
- ../../../addons/ofxUI/src/ofxUITabBar.h src/Menu.h \
+ ../../../addons/ofxUI/src/ofxUITabBar.h src/Menu.h src/Wall.h \
  ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
@@ -744,6 +744,8 @@ src/Channel.h:
 ../../../addons/ofxUI/src/ofxUITabBar.h:
 
 src/Menu.h:
+
+src/Wall.h:
 
 ../../../addons/ofxAndroid/src/ofxAndroid.h:
 

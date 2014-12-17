@@ -119,6 +119,4 @@ class Button{
 	bool getIsActiv(){
 		return isActiv;
 	}
-
-
 };

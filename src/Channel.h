@@ -71,7 +71,7 @@ class Channel{
 			sensorInput = rand()%1;
 			sensorSensitivity = (rand()%4)*25;
 			
-			playButton = new Button ("play", ID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PAUSE", "PLAY", 40);
+			playButton = new Button ("play", ID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PLAY", "PLAY", 40);
 						
 			description = " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tempor a ipsum quis lobortis. Nunc nec orci condimentum lectus mollis suscipit. Nunc fringilla lorem ac maximus imperdiet. Aenean neque massa, laoreet ut lorem nec, ultrices eleifend nulla. Duis auctor arcu dolor, id fermentum leo accumsan et. Morbi ullamcorper, nunc eget elementum lobortis, massa justo feugiat dolor, eu porttitor nibh nulla nec arcu. Ut vitae purus aliquam, convallis mi et, ultricies sapien. Mauris elementum lectus ante, laoreet facilisis mi aliquam nec. Sed imperdiet, ex vel efficitur faucibus, sem nibh bibendum metus, a lobortis enim sem lobortis ex. Nulla facilisi. Morbi finibus augue sed enim congue, a porttitor enim elementum. Nullam nec sollicitudin dolor. Vivamus ornare efficitur nunc vel dignissim. Praesent semper orci in nisi viverra, ut maximus mauris dictum. Nunc lorem sem, volutpat ac orci ut, venenatis eleifend magna. Duis eget ornare nisl. Donec nunc felis, posuere non aliquet ut, accumsan aliquam sapien. Nunc semper suscipit mattis. Sed eu velit sapien. Integer fermentum eget turpis sit amet elementum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur felis velit, dignissim sit amet rhoncus vitae, consectetur at elit. Cras faucibus, felis ac tristique bibendum, velit erat dapibus tortor, quis faucibus nisl velit id ante. Duis varius nisi dolor, efficitur lacinia metus condimentum viverra. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce et erat faucibus, egestas metus ut, vestibulum eros. Curabitur et urna fermentum massa iaculis dignissim at id arcu. Aliquam tincidunt sagittis libero, a accumsan ligula pulvinar et. ";
 			tags.push_back("poulet");
@@ -94,7 +94,7 @@ class Channel{
 			guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
 			guiDescription->setFont("OpenSans-Light.ttf");
 			guiDescription->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiDescription->setUIColors( cb, co, coh, cf, cfh, cp, cpo );
+			guiDescription->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
 			descriptionArea = guiDescription->addTextArea("description", description); 
 			
 			guiDescription->setVisible(false);
