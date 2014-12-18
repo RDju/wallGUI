@@ -15,6 +15,7 @@ class Button{
 		int ID;
 		ofTrueTypeFont font;
 		int color;
+		bool isVisible;
 		
 		
 		
@@ -28,7 +29,8 @@ class Button{
 		isActiv = false;
 		isTouched = false;
 		isAvailable=true;
-		font.loadFont("OpenSans-Light.ttf", 15);
+		isVisible=true;
+		font.loadFont("OpenSans-Regular.ttf", 15);
 	}
 
 	void update() {
@@ -36,25 +38,26 @@ class Button{
 	}
 	
 	void draw() {
-	
-		ofPushStyle();
-		if (isAvailable){
-			if (isTouched) ofFill();
-			else ofNoFill();
-			ofSetColor(color);
-			ofRect(dimensions.getX(), dimensions.getY(), dimensions.getWidth(), dimensions.getHeight());
-			
-			if (isActiv) {
-				font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
+		if (isVisible){
+			ofPushStyle();
+			if (isAvailable){
+				if (isTouched) ofFill();
+				else ofNoFill();
+				ofSetColor(color);
+				ofRect(dimensions.getX(), dimensions.getY(), dimensions.getWidth(), dimensions.getHeight());
+				
+				if (isActiv) {
+					font.drawString(activName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(activName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
+				} else {
+					font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
+				}
 			} else {
-				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
+				ofFill();
+				ofSetColor(125, 50,50);
+				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
 			}
-		} else {
-			ofFill();
-			ofSetColor(125, 50,50);
-			font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
+			ofPopStyle();
 		}
-		ofPopStyle();
 	}
 	
 	void moveTo(int x, int y) {
@@ -118,5 +121,8 @@ class Button{
 	}
 	bool getIsActiv(){
 		return isActiv;
+	}
+	void setVisible(bool isVisible){
+		this->isVisible = isVisible;
 	}
 };

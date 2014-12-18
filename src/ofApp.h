@@ -18,10 +18,9 @@
 #include "ofxOsc.h"
 #include "ofxGui.h"
 #include "ofxUI.h"
-//#include "ofxUITextInput.h"
 
 
-#define HOST "192.168.1.17"
+#define WALLNUMBER 1
 #define PORT 9001
 #define RECEIVEPORT 9003
 
@@ -89,6 +88,7 @@ public:
 	Channel *tempChannel;
 	bool isTempChannelCreated;
 	int wallSelected;
+	bool wantToSaveAutomix;
 	
 	vector<Button*> GUIbuttons;
 
@@ -111,8 +111,14 @@ public:
 	
 	void exit(); 
 	
+	//XML
+	string wallURL = "http://192.168.1.14:8000/wallConf.txt";
+	string myChannelsURL = "http://192.168.1.14:8000/myChannelsConf.txt";
+	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.txt"
+	
 private:
-	ofxOscSender sender;
+	vector<ofxOscSender> senders;
 	ofxOscReceiver receiver;
+	char* hosts[2] = {"192.168.1.17", "192.168.1.182"};
 	
 };

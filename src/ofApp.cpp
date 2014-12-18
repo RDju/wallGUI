@@ -9,7 +9,7 @@ void ofApp::setup(){
 	background.loadImage("bckgrimgWhite.png");
 	//background.loadImage("http://192.168.1.14:8000/pict1.jpg");
 	ofEnableAlphaBlending();
-	font.loadFont("OpenSans-Light.ttf", 15);
+	font.loadFont("OpenSans-Regular.ttf", 15);
 	titleFont.loadFont("open-sansbold-italic.ttf", 20);
 	
 	pageLevel=HOME_PAGE;
@@ -17,6 +17,7 @@ void ofApp::setup(){
 	buttonNumber=-1;
 	isButtonActioned = false;
 	IDbuttonsCount = 20;
+	wantToSaveAutomix = false;
 
 	//channelSelected = none;
 	isTempChannelCreated = false;
@@ -41,16 +42,19 @@ void ofApp::setup(){
 		myChannels[i]->playButton->setID(IDbuttonsCount++);
 	}
 	
-	
-	
 	//OSC message
-	sender.setup( HOST, PORT );
 	ofxOscMessage m;
 	m.setAddress( "/INIT");
-	sender.sendMessage( m );
 	
+	
+	
+	for (int i = 0; i < WALLNUMBER; i++){
+	 	ofxOscSender tempSender;
+	 	tempSender.setup( (string)hosts[i], PORT);
+		senders.push_back(tempSender);
+		senders[i].sendMessage( m );
+	}
 	receiver.setup( RECEIVEPORT );
-	
 	
 	//Buttons
 	//Channel display
@@ -62,6 +66,9 @@ void ofApp::setup(){
 	GUIbuttons.push_back(new Button("save", 13, 25+1.0/2*2.0/5*ofGetWidth(), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "SAVE", "SAVE", 40));
 	GUIbuttons.push_back(new Button("random", 14, 25+2*(1.0/2*2.0/5*ofGetWidth()), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "RANDOM", "RANDOM", 40));
 	GUIbuttons.push_back(new Button("play", 15, ofGetWidth()-25-(1.0/2*2.0/5*ofGetWidth()-10), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "PLAY", "PLAY", 40));
+	
+	//Automix validation
+	GUIbuttons.push_back(new Button("back", 16, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "BACK", "BACK", 40));
 	
 	
 	//Settings GUI
@@ -86,7 +93,7 @@ void ofApp::setup(){
 	for (int i = 0; i < 5; i++){
 		settingsSliders[i] = guiChannelSettings->addSlider(slidersName[i], 0.0, 100.0, 0.0);
 	}
-	//settingsSliders[5]->setVisible(false);
+	settingsSliders[4]->setVisible(false);
 	
 	vector<string> moodsNames;
 	moodsNames.push_back("None");
@@ -104,9 +111,10 @@ void ofApp::setup(){
 	
 	guiChannelSettings->setUIColors( cb, cbgui, coh, cf, cfh, cp, cpo );
 	guiChannelSettings->setVisible(false);
+
 }
 
-void ofApp::moodEvent(ofxUIEventArgs &e){
+void ofApp::moodEvent(ofxUIEventArgs &e){	ofLogNotice() << "setup fini";
 	string name = e.widget->getName();
 	if(name == "Select your mood")
 	{
@@ -119,9 +127,22 @@ void ofApp::moodEvent(ofxUIEventArgs &e){
 void ofApp::update() {
 
 	appMenu->update(wallSelected);
+	
 	if (appMenu->wallListAction == -1) pageLevel = WALLCREATION_PAGE;
-	else if (appMenu->wallListAction != -2) wallSelected = appMenu->wallListAction;
+	//else if (appMenu->wallListAction != -2) wallSelected = appMenu->wallListAction;
 	appMenu->wallListAction = -2;
+	
+	if (wallSelected == appMenu->wallList->toggles.size()-1 && pageLevel != WALLCREATION_PAGE && appMenu->wallList->getSelected().size() > 0){
+		appMenu->wallList->clearSelected();
+	}
+	
+	if (pageLevel != CHANNELSELECT_PAGE){
+		for (int i = 0; i < demoChannels.size(); i++){
+			demoChannels[i]->playButton->setPos(-1, -1);
+		}
+	}
+	
+	
 	
 	
 	OSCcatch();
@@ -146,7 +167,7 @@ void ofApp::update() {
     	switch(buttonNumber){
     		case 0:
     			m.setAddress( "/EXIT");
-				sender.sendMessage( m );
+				senders[0].sendMessage( m );
 	
 				ofApp::exit();
 				std::exit(EXIT_SUCCESS);
@@ -160,13 +181,19 @@ void ofApp::update() {
     			break;
     			
     		case AUTOMIX_PAGE:
-    			if (appMenu->automixTextInput->isClicked()) appMenu->automixTextInput->unClick();
+    			
+    			ofLogNotice() << "debut";
     			
     			m.setAddress("/AUTOMIX/TAG");
     			m.addStringArg(appMenu->automixTextInput->getTextString());
-	        	sender.sendMessage( m );
+	        	senders[0].sendMessage( m );
+	        	
 	        	
     			pageLevel=buttonNumber;
+    			
+    			if (appMenu->automixTextInput->isClicked()) appMenu->automixTextInput->unClick();
+    			if (isTempChannelCreated) tempChannel->tagsTextInput->setTextString(appMenu->automixTextInput->getTextString());
+    			ofLogNotice() << "fin";
     			break;
     			
     		case SEARCH_PAGE:
@@ -175,20 +202,44 @@ void ofApp::update() {
     			break;
     			
     		case 10://Back button 
-    			pageLevel=previousPageLevel;
+    			if(previousPageLevel == AUTOMIX_PAGE) pageLevel = HOME_PAGE;
+    			else pageLevel=previousPageLevel;
     			break;
     		
     		case 11://play channel button
     			m.setAddress( "/PLAY/CHANNEL"/*+ofToString(channelSelected)*/);
     			m.addIntArg(channelSelected->ID);
-	        	sender.sendMessage( m );
+	        	senders[0].sendMessage( m );
     			break;
     			
     		case 12: 
     			//preview
     			break;
-    		case 13:
-    			//save
+    		case 13: //save
+    			if (!wantToSaveAutomix)
+    				wantToSaveAutomix=true;
+    			else {
+    				wantToSaveAutomix = false; 
+    				
+    				isTempChannelCreated = false;
+    				tempChannel->guiTags->setVisible(false);
+					tempChannel->guiDescriptionEdit->setVisible(false);
+					tempChannel->guiTitle->setVisible(false);
+					
+					
+					//save in myChannels
+					tempChannel->ID = myChannels.size();
+					tempChannel->playButton->setID(IDbuttonsCount++);
+					myChannels.push_back(tempChannel);
+					channelSelected = myChannels[myChannels.size()-1];
+					
+					previousPageLevel = pageLevel;
+					pageLevel = CHANNELDISPLAY_PAGE;
+					
+					
+					
+    				//TODO: save xml
+    			}
     			break;
     			
     		case 14:
@@ -202,17 +253,20 @@ void ofApp::update() {
     		case 15:
     			//play automix
     			m.setAddress( "/AUTOMIX/PLAY");
-    			m.addStringArg(appMenu->automixTextInput->getTextString());
+    			m.addStringArg(/*appMenu->automixTextInput->getTextString()*/tempChannel->tagsString);
     			for (int i = 0; i < 4; i++){
     				m.addIntArg((int32_t)settingsSliders[i]->getValue());
     			}
     			if (moodList->getSelectedIndeces().size() > 0)
     				m.addIntArg((int32_t)moodList->getSelectedIndeces()[0]);
     			else m.addIntArg(-1);
-	        	sender.sendMessage( m );
+	        	senders[0].sendMessage( m );
+    			break;
+    		case 16: //back automix
+    			wantToSaveAutomix = false;
     			break;
     	}
-    	if (buttonNumber >=20 && buttonNumber <=30) {
+    	if (buttonNumber >=20 && buttonNumber <=30 ) {
     		pageLevel = CHANNELDISPLAY_PAGE;
     	}
     }
@@ -222,14 +276,23 @@ void ofApp::update() {
     
     switch(pageLevel){
     	case AUTOMIX_PAGE:
-    		guiChannelSettings->setVisible(true);
-    		if(!isTempChannelCreated){
-    			ofLogNotice() << "create a new channel";
-    			tempChannel = new Channel();
-    			isTempChannelCreated = true;
-    			
-    		}
+    		if (!wantToSaveAutomix){
+	    		guiChannelSettings->setVisible(true);
+	    		if(!isTempChannelCreated){
+	    			ofLogNotice() << "create a new channel";
+	    			tempChannel = new Channel(appMenu->automixTextInput->getTextString());
+	    			isTempChannelCreated = true;
+	    			
+	    		}
+	    	} else {
+	    		guiChannelSettings->setVisible(false);
+	    	}
     		break;
+    	case WALLCREATION_PAGE:
+    		if (wallSelected != -1 && wallSelected != appMenu->wallList->toggles.size() -1){
+    			//load XML
+    			ofLogNotice() << "wall selected" << wallSelected;
+    		}
     }    
 	appWall->update();
 }
@@ -258,13 +321,14 @@ void ofApp::draw() {
     			ofSetColor(40);
     			ofLine(1.0/3*ofGetWidth()-20, HEIGHT_BUTTONS+20, 1.0/3*ofGetWidth()-20, ofGetHeight()-HEIGHT_BUTTONS-20);
     			titleFont.drawString("MY CHANNELS", 20, HEIGHT_BUTTONS + 20+titleFont.getSize());
-    			for (int i = 0; i <3; i++){
+    			for (int i = 0; i <myChannels.size(); i++){
     				myChannels[i]->drawMini(20, HEIGHT_BUTTONS + 20+titleFont.getSize()+ 30 + i*(font.getSize()+30));
     			}
     			titleFont.drawString("BOOKMARKS", 20 , ofGetHeight()/2+titleFont.getSize());
     			for (int i = 0; i < 4; i++){
     				demoChannels[i+2]->drawMini(20, ofGetHeight()/2+titleFont.getSize()+ 30 + i*(font.getSize()+30));
     			}
+    			
     			titleFont.drawString("SEARCH", 1.0/3*ofGetWidth()+20 , HEIGHT_BUTTONS + 20+titleFont.getSize());
     			
     			if ( appMenu->searchTextInput->getTextString()!= "Search"){// !(strcmp(appMenu->searchTextInput->getTextString(), "Search") == 0)){
@@ -288,10 +352,16 @@ void ofApp::draw() {
     		break;
     		
     	case AUTOMIX_PAGE:
-    		tempChannel->drawAutomixCreation(appMenu->automixTextInput->getTextString());
-    		for (int i = 2; i < 6; i++){
-    			GUIbuttons[i]->draw();
-    		}
+    		if (!wantToSaveAutomix){
+	    		tempChannel->drawAutomixCreation(/*appMenu->automixTextInput->getTextString()*/);
+	    		for (int i = 2; i < 6; i++){
+	    			GUIbuttons[i]->draw();
+	    		}
+	    	} else {
+	    		tempChannel->drawAutomixValidation();
+	    		GUIbuttons[3]->draw();
+	    		GUIbuttons[6]->draw();
+	    	}
     		break;
     		
     	case WALLCREATION_PAGE:
@@ -311,11 +381,11 @@ void ofApp::draw() {
     		
     }
     
-    for (size_t i=0; i < GUIbuttons.size(); i++){
+    /*for (size_t i=0; i < GUIbuttons.size(); i++){
     	if (GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
     		GUIbuttons[i]->draw();
     	}
-    }
+    }*/
     
     appMenu->draw();
 }
@@ -335,6 +405,7 @@ void ofApp::OSCcatch(){
 		if(rm.getAddress() == "/SNAPSHOT"){
 			tempChannel->automixImageFound = true;
 			tempChannel->channelImage.loadImage(rm.getArgAsString(0));
+			tempChannel->imageUrl = rm.getArgAsString(0);
 			
 			ofLogNotice() << rm.getArgAsString(0);
 		}
@@ -397,7 +468,7 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 		
 		//Channel buttons
 		for (int i=0; i < demoChannels.size(); i++){
-			if (demoChannels[i]->playButton->isTouchedUp(x, y)){
+			if (pageLevel == CHANNELSELECT_PAGE && demoChannels[i]->playButton->isTouchedUp(x, y) && y > 50 && x > 0){
 				buttonNumber = demoChannels[i]->playButton->getID();
 				channelSelected = demoChannels[i];
 				isButtonActioned = true;

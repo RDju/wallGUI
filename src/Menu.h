@@ -17,15 +17,17 @@ class Menu{
 		void setup(){
 			//Buttons
 			menuButtons.push_back(new Button("HOME", HOME_PAGE, 0, 0, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "HOME", "HOME"));
-			menuButtons.push_back(new Button("LOG OUT", 0,  15.0/28*ofGetWidth(), 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "LOG OUT", "LOG OUT"));
-			menuButtons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 18.0/28*ofGetWidth(), 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "SETTINGS", "SETTINGS"));
+			menuButtons.push_back(new Button("LOG OUT", 0,  15.0/28*ofGetWidth()-50, 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "LOG OUT", "LOG OUT"));
+			menuButtons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 18.0/28*ofGetWidth()-50, 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "SETTINGS", "SETTINGS"));
 			
-			menuButtons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "My channels", "My channels"));
+			menuButtons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "MY CHANNELS", "MY CHANNELS"));
 			//GUIbuttons.push_back(new Button("Automix", AUTOMIX_PAGE, 1.0/4*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "What @ or # is on your mind ?", "What @ or # is on your mind ?"));
 			//GUIbuttons.push_back(new Button("Search", SEARCH_PAGE, 5.0/8*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "Search a # or a @", "Search a # or a @"));
 			
 			menuButtons.push_back(new Button("Automix go", AUTOMIX_PAGE, 9.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10, 1.0/16*ofGetWidth()-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
 			menuButtons.push_back(new Button("Search go", SEARCH_PAGE, 15.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10, 1.0/16*ofGetWidth()-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
+			menuButtons.push_back(new Button("Wall go", WALLCREATION_PAGE, 15.0/16*ofGetWidth()+10, 10, 1.0/16*ofGetWidth()-10-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
+			menuButtons[6]->setVisible(false);
 			
 			//zones de texte
 			
@@ -40,7 +42,7 @@ class Menu{
 		    
 			
 			guiAuto = new ofxUICanvas( 1.0/4*ofGetWidth()+10, ofGetHeight()-HEIGHT_BUTTONS*3.0/4, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
-			guiAuto->setFont("OpenSans-Light.ttf");
+			guiAuto->setFont("OpenSans-Regular.ttf");
 			guiAuto->setWidgetFontSize(OFX_UI_FONT_LARGE);
 			guiAuto->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
 			automixTextInput = guiAuto->addTextInput("Automix", "Automix", -1); 
@@ -51,15 +53,15 @@ class Menu{
 			//automixTextInput->setAutoClear(true);
 			
 			guiSearch = new ofxUICanvas(5.0/8*ofGetWidth()+10, ofGetHeight()-HEIGHT_BUTTONS*3.0/4, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
-			guiSearch->setFont("OpenSans-Light.ttf");
+			guiSearch->setFont("OpenSans-Regular.ttf");
 			guiSearch->setWidgetFontSize(OFX_UI_FONT_LARGE);
 			guiSearch->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
 			searchTextInput = guiSearch->addTextInput("Search", "Search", -1);
 			//searchTextInput->setAutoClear(true);
 			
 			//Menu déroulant
-			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth()-5, HEIGHT_BUTTONS/2 - 15, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
-			guiMenuDeroulant->setFont("OpenSans-Light.ttf");
+			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth()-5 -50, HEIGHT_BUTTONS/2 - 15, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
+			guiMenuDeroulant->setFont("OpenSans-Regular.ttf");
 			guiMenuDeroulant->setWidgetFontSize(OFX_UI_FONT_LARGE);
 			
 			//guiMenuDeroulant->setDrawPadding(50);
@@ -99,8 +101,12 @@ class Menu{
 				menuButtons[SEARCH_PAGE]->setPos(15.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10);
 			}
 			
-			if (wallList->getSelectedIndeces().size() > 0)
+			if (wallList->getSelectedIndeces().size() > 0){
 				wallSelected = wallList->getSelectedIndeces()[0];
+				if (wallSelected != -1 && wallSelected != wallList->toggles.size() -1)
+					menuButtons[6]->setVisible(true);
+				else menuButtons[6]->setVisible(false);
+			}
 		}
 	
 		

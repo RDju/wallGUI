@@ -182,7 +182,7 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxAndroid/src/ofxAndroidVideoPlayer.h \
  ../../../libs/openFrameworks/3d/ofCamera.h \
  ../../../libs/openFrameworks/3d/ofEasyCam.h src/ofApp.h src/Button.h \
- src/Module.h src/Channel.h ../../../addons/ofxUI/src/ofxUI.h \
+ src/Module.h ../../../addons/ofxUI/src/ofxUI.h \
  ../../../addons/ofxUI/src/ofxUIDefines.h \
  ../../../addons/ofxXmlSettings/src/ofxXmlSettings.h \
  ../../../addons/ofxXmlSettings/src/../libs/tinyxml.h \
@@ -233,8 +233,8 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxUI/src/ofxUICanvas.h \
  ../../../addons/ofxUI/src/ofxUIScrollableCanvas.h \
  ../../../addons/ofxUI/src/ofxUISuperCanvas.h \
- ../../../addons/ofxUI/src/ofxUITabBar.h src/Menu.h src/Wall.h \
- ../../../addons/ofxAndroid/src/ofxAndroid.h \
+ ../../../addons/ofxUI/src/ofxUITabBar.h src/Channel.h src/Menu.h \
+ src/Wall.h ../../../addons/ofxAndroid/src/ofxAndroid.h \
  ../../../addons/ofxAndroid/src/ofAppAndroidWindow.h \
  ../../../addons/ofxAndroid/src/ofxAndroidApp.h \
  ../../../addons/ofxAndroid/src/ofxAndroidUtils.h \
@@ -637,8 +637,6 @@ src/Button.h:
 
 src/Module.h:
 
-src/Channel.h:
-
 ../../../addons/ofxUI/src/ofxUI.h:
 
 ../../../addons/ofxUI/src/ofxUIDefines.h:
@@ -742,6 +740,8 @@ src/Channel.h:
 ../../../addons/ofxUI/src/ofxUISuperCanvas.h:
 
 ../../../addons/ofxUI/src/ofxUITabBar.h:
+
+src/Channel.h:
 
 src/Menu.h:
 

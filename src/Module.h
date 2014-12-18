@@ -1,3 +1,8 @@
+#include <vector>
+#include <string>
+#include "ofxUI.h"
+#include "ofApp.h"
+
 
 #define WIDTH_13 1.7
 #define HEIGHT_13 1
@@ -28,7 +33,7 @@ class Module{
 		bool isDeleted;
 		bool isWellPlaced;
 		
-		
+		ofColor color;
 		
 		int bordureX = 63;
 		int bordureY = (((ofGetHeight()-200.0)/75.0 - (float)((int)((ofGetHeight()-200)/75)))*75 + 75) /2;
@@ -48,7 +53,7 @@ class Module{
 		isSelected=false;
 		locationInGrid.set(-1, -1);
 		
-		font.loadFont("OpenSans-Light.ttf", 12);
+		font.loadFont("open-sansbold-italic.ttf", 12);
 		
 		switch(typeSize){
 			case 0:
@@ -62,13 +67,28 @@ class Module{
 				break;
 		}
 		
+		switch(typeMat){
+			case 0:
+				color = ofColor(127, 127, 127);
+				break;
+			case 1:
+				color = ofColor(157, 177, 250);
+				break;
+			case 2:
+				color = ofColor(147, 217, 120);
+				break;
+			case 3:
+				color = ofColor(184, 148, 193);
+				break;
+		}
+		
 	}
 	
 	void draw() {
 		
 		ofPushStyle();
 			ofFill();
-			ofSetColor(127);
+			ofSetColor(color);
 			ofRect(pos.x, pos.y, size.x, size.y);
 			
 			if (!isWellPlaced){
