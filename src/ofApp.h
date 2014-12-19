@@ -79,10 +79,12 @@ public:
 	
 	int pageLevel;
 	int previousPageLevel;
+	int slide;
 	int buttonNumber;
 	bool isButtonActioned;
 	int activChannel;
 	int IDbuttonsCount;
+	int IDmyChannelsCount;
 	
 	Channel *channelSelected;
 	Channel *tempChannel;
@@ -114,11 +116,12 @@ public:
 	//XML
 	string wallURL = "http://192.168.1.14:8000/wallConf.txt";
 	string myChannelsURL = "http://192.168.1.14:8000/myChannelsConf.txt";
-	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.txt"
+	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.txt";
 	
 private:
 	vector<ofxOscSender> senders;
 	ofxOscReceiver receiver;
+	ofxOscSender sender;
 	char* hosts[2] = {"192.168.1.17", "192.168.1.182"};
 	
 };

@@ -14,7 +14,7 @@ class Menu{
 	public:
 	
 		Menu(){};
-		void setup(){
+		void setup(vector<string> names){
 			//Buttons
 			menuButtons.push_back(new Button("HOME", HOME_PAGE, 0, 0, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "HOME", "HOME"));
 			menuButtons.push_back(new Button("LOG OUT", 0,  15.0/28*ofGetWidth()-50, 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "LOG OUT", "LOG OUT"));
@@ -31,20 +31,20 @@ class Menu{
 			
 			//zones de texte
 			
-			ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
-			ofxUIColor cb2 = ofxUIColor(40, 40, 40, 200); //BG liste déroulante
-		    ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
-		    ofxUIColor coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
-		    ofxUIColor cf = ofxUIColor(255, 255, 255, 255); //texte non sélectionné
-		    ofxUIColor cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
-		    ofxUIColor cp = ofxUIColor(255, 255, 255, 255); // ???
-		    ofxUIColor cpo = ofxUIColor(255, 0, 0, 255);
+			cb = ofxUIColor(0, 0, 0, 0); //Background 
+			cb2 = ofxUIColor(40, 40, 40, 200); //BG liste déroulante
+		    co = ofxUIColor(255, 0, 0, 255); // ???
+		    coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
+		    cf = ofxUIColor(255, 255, 255, 255); //texte non sélectionné
+		    cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
+		    cp = ofxUIColor(255, 255, 255, 255); // ???
+		    cpo = ofxUIColor(255, 0, 0, 255);
 		    
 			
 			guiAuto = new ofxUICanvas( 1.0/4*ofGetWidth()+10, ofGetHeight()-HEIGHT_BUTTONS*3.0/4, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
 			guiAuto->setFont("OpenSans-Regular.ttf");
 			guiAuto->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiAuto->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
+			guiAuto->setUIColors( cb2, cb, coh, cf, cfh, cp, cpo );
 			automixTextInput = guiAuto->addTextInput("Automix", "Automix", -1); 
 			automixTextInput->setAutoUnfocus(true);
 			automixTextInput->setAutoClear(true);
@@ -66,11 +66,7 @@ class Menu{
 			
 			//guiMenuDeroulant->setDrawPadding(50);
 			
-		    vector<string> names;
-		    names.push_back("WALL DE LA CUISINE");    
-		    names.push_back("WALL DU SALON");    
-		    names.push_back("WALL DE LA CHAMBRE");
-		    names.push_back("CREATE A NEW WALL");
+			
 		    
 			wallList = guiMenuDeroulant->addDropDownList("WALLS", names, 1.0/4*ofGetWidth(), 0, 20);
 			wallList ->setAllowMultiple(false);
@@ -107,6 +103,21 @@ class Menu{
 					menuButtons[6]->setVisible(true);
 				else menuButtons[6]->setVisible(false);
 			}
+		}
+		
+		void updateListWall(vector<string> names){
+			wallList->clearToggles();
+			wallList->addToggles(names);
+			
+			//guiMenuDeroulant->removeWidget("WALLS");
+			
+			//wallList->getLabel()->getRect()->setHeight(50);
+			wallList ->setAllowMultiple(false);
+			wallList ->setShowCurrentSelected(true); 
+			wallList->setAutoClose(true);
+			ofAddListener(guiMenuDeroulant->newGUIEvent, this, &Menu::menuEvent);
+			
+			guiMenuDeroulant->setUIColors( cb2, cb, coh, cf, cfh, cp, cpo );
 		}
 	
 		
@@ -179,6 +190,15 @@ class Menu{
 		ofxUITextInput *searchTextInput;
 		
 		int wallListAction;
+		
+		ofxUIColor cb;
+		ofxUIColor cb2; //BG liste déroulante
+		ofxUIColor co; // ???
+		ofxUIColor coh; //tour quand sélectionné
+		ofxUIColor cf; //texte non sélectionné
+		ofxUIColor cfh; //texte sélectionné + curseur
+		ofxUIColor cp; // ???
+		ofxUIColor cpo;
 	
 
 };

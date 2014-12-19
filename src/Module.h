@@ -11,7 +11,7 @@
 #define WIDTH_27 3.4
 #define HEIGHT_27 2
 
-#define GRID_RATIO 75
+#define GRID_RATIO 65
 
 #define SCREEN_TYPE 0
 #define LED_TYPE 1
@@ -35,8 +35,8 @@ class Module{
 		
 		ofColor color;
 		
-		int bordureX = 63;
-		int bordureY = (((ofGetHeight()-200.0)/75.0 - (float)((int)((ofGetHeight()-200)/75)))*75 + 75) /2;
+		int bordureX = (((ofGetWidth()-50)/(1.7*GRID_RATIO) - (float)((int)((ofGetWidth()-50)/(1.7*GRID_RATIO))))*1.7*GRID_RATIO + 50) /2; 
+		int bordureY = (((ofGetHeight()-200.0)/GRID_RATIO - (float)((int)((ofGetHeight()-200)/GRID_RATIO)))*GRID_RATIO + 25 /*GRID_RATIO*/) /2;
 		
 	
 	public:
@@ -57,13 +57,13 @@ class Module{
 		
 		switch(typeSize){
 			case 0:
-				size.set(WIDTH_13*75, HEIGHT_13*75);
+				size.set(WIDTH_13*GRID_RATIO, HEIGHT_13*GRID_RATIO);
 				break;
 			case 1:
-				size.set(WIDTH_24*75, HEIGHT_24*75);
+				size.set(WIDTH_24*GRID_RATIO, HEIGHT_24*GRID_RATIO);
 				break;
 			case 2:
-				size.set(WIDTH_27*75-1, HEIGHT_27*75);
+				size.set(WIDTH_27*GRID_RATIO-1, HEIGHT_27*GRID_RATIO);
 				break;
 		}
 		
@@ -116,6 +116,8 @@ class Module{
 					font.drawString("texture", pos.x+5, pos.y+5+ font.getSize());
 					break;
 			}
+			if(ID != -1)
+				font.drawString(ofToString(ID), pos.x+size.x/2, pos.y+ size.y/2 + font.getSize());
 		ofPopStyle();
 	}
 	
@@ -131,16 +133,20 @@ class Module{
 		}
 	}
 	bool isAlone(Module *module){
-		if (( module->pos.x + module->size.x -10 <= this->pos.x &&  module->pos.y + module->size.y -10 <= this->pos.y)
+		if (( module->pos.x + module->size.x -10 <= this->pos.x &&  module->pos.y + module->size.y -10 <= this->pos.y) //angle
 			|| (module->pos.x +10 >= this->pos.x+this->size.x && module->pos.y + module->size.y -10 <= this->pos.y)
 			|| (module->pos.x + module->size.x -10 <= this->pos.x && module->pos.y +10 >= this->pos.y + this->size.y)
 			|| (module->pos.x +10 >= this->pos.x+this->size.x && module->pos.y +10 >= this->pos.y + this->size.y)
 			
-			|| (module->pos.x + module->size.x -10 <= this->pos.x-75*1.7)
-			|| (module->pos.x +10 >= this->pos.x + this->size.x + 75*1.7)
-			|| (module->pos.y + module->size.y -10 <= this->pos.y - 75*1.7)
-			|| (module->pos.y +10 >= this->pos.y+this->size.y + 75 * 1.7))
+			|| (module->pos.x + module->size.x -10 <= this->pos.x-GRID_RATIO*1.7)
+			|| (module->pos.x +10 >= this->pos.x + this->size.x + GRID_RATIO*1.7)
+			|| (module->pos.y + module->size.y -10 <= this->pos.y - GRID_RATIO)
+			|| (module->pos.y +10 >= this->pos.y+this->size.y + GRID_RATIO))
 				return true;
+		else return false;
+	}
+	bool isSplitable(Module *module){
+		if (abs(this->pos.x - module->pos.x) == (int)(1.7*GRID_RATIO) && this->pos.y == module->pos.y) return true;
 		else return false;
 	}
 	
@@ -162,13 +168,13 @@ class Module{
 		//si dans le rectangle
 		if (ID != -1){
 			if ( x-touch.x > bordureX && x+(size.x-touch.x) < ofGetWidth()-bordureX && y-touch.y > bordureY+50 && y+(size.y-touch.y) < ofGetHeight()-150){ 
-			  // ofLogNotice()
 			   if (isTouched) {
 			   
 			   		if ( (int)abs(x-touch.x - bordureX) % (int)(1.7*GRID_RATIO) < 50 && (int)abs(y - touch.y - bordureY - 50) % GRID_RATIO < 50 ){
 			   		
 			   			pos.set(x-touch.x - ((int)(x-touch.x - bordureX) % int(1.7*GRID_RATIO)), (y-touch.y) - ((int)(y-touch.y - bordureY - 50) % GRID_RATIO));
 			   			//locationInGrid.set((int)((x-touch.x- bordureX)/(GRID_RATIO*1.7)-4), (int)((y-touch.y- bordureY - 50)/GRID_RATIO));
+			   			getPosInGrid();
 			   		}
 			   		/*else
 			   			pos.set(x-touch.x,y-touch.y);*/
@@ -222,6 +228,15 @@ class Module{
 	}
 	ofPoint getPos(){
 		return pos;
+	}
+	
+	ofPoint getPosInGrid(){
+		ofPoint tempPoint;
+		
+		tempPoint.x = (pos.x - bordureX) / int (1.7*GRID_RATIO);
+		tempPoint.y = (pos.y - bordureY - 50) / GRID_RATIO;
+		
+		return tempPoint;
 	}
 
 

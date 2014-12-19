@@ -42,6 +42,15 @@ class Channel{
 		
 		bool automixImageFound;
 		
+		ofxUIColor cb;
+		ofxUIColor cb2;
+		ofxUIColor co;
+		ofxUIColor coh;
+		ofxUIColor cf;
+		ofxUIColor cfh;
+		ofxUIColor cp;
+		ofxUIColor cpo;
+		
 		
 		Channel(string text)
 		{
@@ -61,18 +70,28 @@ class Channel{
 			sensorSensitivity = 0;
 			
 			titleFont.loadFont("open-sansbold-italic.ttf", 15);
-			titleFont.setEncoding(OF_ENCODING_ISO_8859_15);
+			//titleFont.setEncoding(OF_ENCODING_ISO_8859_15);
 			infoFont.loadFont("OpenSans-Regular.ttf", 0.02*ofGetHeight());
 			
-			ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
-			ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
-		    ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
-		    ofxUIColor coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
-		    ofxUIColor cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
-		    ofxUIColor cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
-		    ofxUIColor cp = ofxUIColor(255, 255, 255, 255); // ???
-		    ofxUIColor cpo = ofxUIColor(255, 0, 0, 255);
+			cb = ofxUIColor(0, 0, 0, 0); //Background 
+			cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
+		    co = ofxUIColor(255, 0, 0, 255); // ???
+		    coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
+		    cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
+		    cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
+		    cp = ofxUIColor(255, 255, 255, 255); // ???
+		    cpo = ofxUIColor(255, 0, 0, 255);
 		    
+		    
+		    
+		    guiTitle= new ofxUICanvas(25, HEIGHT_BUTTONS+20+2.0/5*ofGetHeight(), 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
+			guiTitle->setFont("open-sansbold-italic.ttf");
+			guiTitle->setWidgetFontSize(OFX_UI_FONT_LARGE);
+			guiTitle->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
+			titleTextInput = guiTitle->addTextInput("Write your title here", "Write your title here", -1); 
+			titleTextInput->setAutoUnfocus(true);
+			titleTextInput->setAutoClear(true);
+			guiTitle->setVisible(false);
 			
 			guiTags= new ofxUICanvas(25 + titleFont.stringWidth("# :"), HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+35, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
 			guiTags->setFont("OpenSans-Regular.ttf");
@@ -81,19 +100,7 @@ class Channel{
 			tagsTextInput = guiTags->addTextInput("tags input", text, -1); 
 			tagsTextInput->setAutoUnfocus(true);
 			tagsTextInput->setAutoClear(true);
-			
-			
 			guiTags->setVisible(false);
-			
-			guiTitle= new ofxUICanvas(25, HEIGHT_BUTTONS+20+2.0/5*ofGetHeight(), 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
-			guiTitle->setFont("open-sansbold-italic.ttf");
-			guiTitle->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiTitle->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
-			titleTextInput = guiTitle->addTextInput("Write your title here", "Write your title here", -1); 
-			titleTextInput->setAutoUnfocus(true);
-			titleTextInput->setAutoClear(true);
-			
-			guiTitle->setVisible(false);
 			
 			guiDescriptionEdit= new ofxUICanvas( 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
 			guiDescriptionEdit->setFont("OpenSans-Regular.ttf");
@@ -102,20 +109,9 @@ class Channel{
 			descriptionTextInput = guiDescriptionEdit->addTextInput("Write your description here...", "Write your description here...", -1); 
 			descriptionTextInput->setAutoUnfocus(true);
 			descriptionTextInput->setAutoClear(true);
-			
 			guiDescriptionEdit->setVisible(false);
-			
-			guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
-			guiDescription->setFont("OpenSans-Regular.ttf");
-			guiDescription->setWidgetFontSize(OFX_UI_FONT_LARGE);
-			guiDescription->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
-			descriptionArea = guiDescription->addTextArea("description", description); 
-			
-			guiDescription->setVisible(false);
-			
-			playButton = new Button ("play", ID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PLAY", "PLAY", 40);
+				
 		}
-		
 		
 		Channel(string url, string title, string creator, int rate, int ID): imageUrl(url), title(title), creator(creator), rate(rate), ID(ID)
 		{
@@ -144,14 +140,14 @@ class Channel{
 				tagsString += tags[i] + ", ";
 			}
 			
-			ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
-			ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
-		    ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
-		    ofxUIColor coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
-		    ofxUIColor cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
-		    ofxUIColor cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
-		    ofxUIColor cp = ofxUIColor(255, 255, 255, 255); // ???
-		    ofxUIColor cpo = ofxUIColor(255, 0, 0, 255);
+			cb = ofxUIColor(0, 0, 0, 0); //Background 
+			cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
+		    co = ofxUIColor(255, 0, 0, 255); // ???
+		    coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
+		    cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
+		    cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
+		    cp = ofxUIColor(255, 255, 255, 255); // ???
+		    cpo = ofxUIColor(255, 0, 0, 255);
 		    
 			guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
 			guiDescription->setFont("OpenSans-Regular.ttf");
@@ -162,33 +158,47 @@ class Channel{
 			guiDescription->setVisible(false);
 		}
 		
+		void saveChannel(int buttonID){
+			playButton = new Button ("play", buttonID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PLAY", "PLAY", 40);
+			guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
+			guiDescription->setFont("OpenSans-Regular.ttf");
+			guiDescription->setWidgetFontSize(OFX_UI_FONT_LARGE);
+			guiDescription->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
+			descriptionArea = guiDescription->addTextArea("description", description); 
+			
+			guiDescription->setVisible(false);
+		}
 		
-		
-		
-		void drawPreview(int x, int y){
-			ofPushMatrix();
-			ofPushStyle();
-				ofSetColor(40);
-				titleFont.drawString(title, x, y);
-				ofSetColor(255);
-				channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
-				channelImage.draw(x, y+5/*+titleFont.getSize()*/);
-				ofSetColor(127);
-				infoFont.drawString("By: " + creator, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()+10);
-				infoFont.drawString("Price: " + price, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()*2 + 15);
-				for (int i = 0; i < 5; i ++ ){
-					if (rate>i) ofFill();
-					else ofNoFill();
+		void drawPreview(/*int x, int y*/){
+			int x = tempPosition.x;
+			int y = tempPosition.y;
+			if (x != -1 && y != -1){
+				ofPushMatrix();
+				ofPushStyle();
+					ofSetColor(40);
+					titleFont.drawString(title, x, y);
+					ofSetColor(255);
+					channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
+					channelImage.draw(x, y+5/*+titleFont.getSize()*/);
+					ofSetColor(127);
+					infoFont.drawString("By: " + creator, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()+10);
+					infoFont.drawString("Price: " + price, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()*2 + 15);
 					
-					ofSetColor(36, 37, 38);
-					ofCircle(x+CHANNEL_IMAGE_WIDTH*2.0/3+i*infoFont.getSize()+i*0.5*infoFont.getSize(), y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+2*infoFont.getSize(), infoFont.getSize()/1.5);
-				}
-				
-			tempPosition.set(x, y);
+					ofSetCircleResolution(100);
+					for (int i = 0; i < 5; i ++ ){
+						if (rate>i) ofFill();
+						else ofNoFill();
 						
-						
-			ofPopStyle();
-			ofPopMatrix();
+						ofSetColor(36, 37, 38);
+						ofCircle(x+CHANNEL_IMAGE_WIDTH*2.0/3+i*infoFont.getSize()+i*0.5*infoFont.getSize(), y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+2*infoFont.getSize(), infoFont.getSize()/1.5);
+					}
+					
+				//tempPosition.set(x, y);
+							
+							
+				ofPopStyle();
+				ofPopMatrix();
+			}
 		}
 		
 		void drawPage(){
@@ -307,7 +317,6 @@ class Channel{
     			guiTitle->setVisible(true);
     			
     			description = descriptionTextInput->getTextString();
-    			descriptionArea->setTextString(description);
     			title = titleTextInput->getTextString();
     			
     		ofPopStyle();

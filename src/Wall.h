@@ -10,8 +10,9 @@ public:
 	int IDmodulesCount;
 	
 	ofRectangle gridSize;
-	ofRectangle gridLines[18];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
+	ofRectangle gridLines[22];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
 	vector<int> touchOrder;
+	vector<ofPoint> splitableModules;
 	int gridRepresentation[7][7];
 	int IDbutton = 0;
 	
@@ -19,20 +20,32 @@ public:
 	int bordureY;
 	
 	bool isLibraryOpened;
-	
-	
 	bool isButtonActioned;
+	bool newWallCreated;
 	
 	vector<Module*> modules;
 	vector<Module*> libraryModules;
 	vector<Button*> wallButtons;
 	
+	ofxUICanvas *saveWallGUI;
+	ofxUITextInput *saveWallTextInput;
+	
+	ofxXmlSettings modSettings;
+    ofxXmlSettings mediaSettings;
+
+    string xmlStructure;
+	int lastTagNumber;
+	
+	bool drawMedia;
+	
+	vector<string> names;
 	
 	Wall(){}
 	
 	void setup(){
 		IDmodulesCount = 0;
 		isLibraryOpened = false;
+		newWallCreated = false;
 		
 		gridSize.set( (float)(0.09*ofGetWidth()+WIDTH_BUTTONS), 0, (float)(ofGetWidth()-0.09*ofGetWidth()-WIDTH_BUTTONS), (float)(ofGetHeight()-0.15*ofGetHeight()-HEIGHT_BUTTONS));
 		gridSetup();
@@ -51,7 +64,35 @@ public:
 			for (int j = 0; j <3; j++)
 				libraryModules.push_back(new Module(j, i, -1));
 		
+		/*names.push_back("WALL DE LA CUISINE");    
+		names.push_back("WALL DU SALON");    
+		names.push_back("WALL DE LA CHAMBRE");*/
+		names.push_back("CREATE A NEW WALL");
+				
+		ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
+		ofxUIColor cb2 = ofxUIColor(255,255,255,255); //BG liste déroulante
+		ofxUIColor co = ofxUIColor(255, 0, 0, 255); // ???
+		ofxUIColor coh = ofxUIColor(40, 40, 40, 255); //tour quand sélectionné
+		ofxUIColor cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
+		ofxUIColor cfh = ofxUIColor(40, 40, 40, 255); //texte sélectionné + curseur
+		ofxUIColor cp = ofxUIColor(255, 255, 255, 255); // ???
+		ofxUIColor cpo = ofxUIColor(255, 0, 0, 255);
+				
+		saveWallGUI = new ofxUICanvas(30, ofGetHeight()/2+20, 2.0/8*ofGetWidth()-20, HEIGHT_BUTTONS);
+		saveWallGUI->setFont("open-sansbold-italic.ttf");
+		saveWallGUI->setWidgetFontSize(OFX_UI_FONT_LARGE);
+		saveWallGUI->setUIColors( cb2, cb, coh, cf, cfh, cp, cpo );
+		saveWallTextInput = saveWallGUI->addTextInput("Wall", "Wall title", -1); 
+		saveWallTextInput->setAutoUnfocus(true);
+		saveWallTextInput->setAutoClear(true);
+		saveWallGUI->setVisible(false);
 		
+		//XML
+		if( modSettings.loadFile("modules.xml") && mediaSettings.loadFile("media.xml") ){
+			cout<<"mySettings.xml loaded!"<<endl;
+		}else{
+			cout<<"unable to load mySettings.xml check data/ folder"<<endl;
+		}
 		
 	}
 	
@@ -60,15 +101,11 @@ public:
 		//suppression des modules
 	    for (size_t i = 0; i<modules.size(); i++){
 	    	if (modules[i]->getIsDeleted()){
-	    		ofLogNotice() << "passe 1"; 
 	    		modules.erase(modules.begin()+i);//delete module 
-	    		ofLogNotice() << "passe 2"; 
-	    		for (size_t j=i; j<modules.size(); j++){//decrement the ID of module following the one just deleted
+	    		/*for (size_t j=i; j<modules.size(); j++){//decrement the ID of module following the one just deleted
 	    			modules[j]->setID(modules[j]->getID()-1);
-	    			ofLogNotice() << "passe 3"; 
-	    		}
-	    		IDmodulesCount--;
-	    		ofLogNotice() << "passe 4"; 
+	    		}*/
+	    		//IDmodulesCount--;
 	    		for (size_t j=0; j<touchOrder.size();j++){//remove the ID from the deleted module from touchOrder
 	    			if (touchOrder[j]==i){
 	    				touchOrder.erase(touchOrder.begin() + j);
@@ -77,7 +114,6 @@ public:
 	    				break;
 	    			}
 	    		}
-	    		ofLogNotice() << "passe 5"; 
 	    		
 	    		/*for (int i=8; i<11; i++)
 	    			wallButtons[i]->setIsAvailable(true);*/
@@ -97,7 +133,7 @@ public:
 	    //Alone module
 	    if (modules.size() > 1){
 		    for (size_t i = 0; i< modules.size(); i++){
-		    	if (modules[i]->getPos().y < gridSize.getHeight()){ // ???
+		    	//if (modules[i]->getPos().y < gridSize.getHeight()){ // ???
 			    	bool alone=true;
 			    	for (size_t j = 0; j< modules.size(); j++){
 			    		if (i!=j && !modules[i]->isAlone(modules[j])){
@@ -106,8 +142,33 @@ public:
 			    	}
 			    	if(alone) modules[i]->setIsWellPlaced(false);
 			    	else modules[i]->setIsWellPlaced(true);
-			   	}
+			   	//}
 		    }
+		}
+		
+		//splitable modules
+		splitableModules.clear();
+		if (modules.size() > 1){
+		    for (size_t i = 0; i< modules.size(); i++){
+		    	for (size_t j = i+1; j< modules.size(); j++){
+		    		if (modules[i]->getTypeSize()==1 && modules[j]->getTypeSize()==1 && modules[i]->getTypeMat() == modules[j]->getTypeMat() && modules[i]->getTypeMat()!=3 && modules[i]->isSplitable(modules[j]) ){
+						splitableModules.push_back(ofPoint(i, j));
+						//ofLogNotice() << i << " et " << j << " splitable";
+		    		}
+		    	}
+			}
+		}
+		
+		if (saveWallGUI->isVisible() && !saveWallTextInput->isClicked() ){
+			saveWallGUI->setVisible(false);
+			//if (wallSelected == -1)
+			//TODO : save if new wall, modif if existing wall
+			wall2XML();
+			names.erase(names.end());
+			names.push_back(saveWallTextInput->getTextString());
+			names.push_back("CREATE A NEW WALL");
+			ofLogNotice() << "save wall";
+			newWallCreated = true;
 		}
 	}
 	
@@ -133,8 +194,8 @@ public:
 	void drawLibrary(){
 		for(int i = 0; i < libraryModules.size(); i++){
 			if ( libraryModules[i]->getTypeSize() == 2)
-				libraryModules[i]->setPos(bordureX +libraryModules[i]->getTypeMat() * 2.5 *127, bordureY + 50 + 5 * 75);
-			else libraryModules[i]->setPos(bordureX +libraryModules[i]->getTypeMat() * 2.5 *127, bordureY + 50 + libraryModules[i]->getTypeSize() *1.5*libraryModules[i]->getTypeSize() * 75);
+				libraryModules[i]->setPos(bordureX +libraryModules[i]->getTypeMat() * 2.5 *1.7*GRID_RATIO, bordureY + 50 + 5 * GRID_RATIO);
+			else libraryModules[i]->setPos(bordureX +libraryModules[i]->getTypeMat() * 2.5 *1.7*GRID_RATIO, bordureY + 50 + libraryModules[i]->getTypeSize() *1.5*libraryModules[i]->getTypeSize() * GRID_RATIO);
 			libraryModules[i]->draw();
 		}
 	}
@@ -151,6 +212,7 @@ public:
 			if (modules[touchOrder[i]]->getIsTouched()){
 				touchOrder.push_back(touchOrder[i]);
 				touchOrder.erase(touchOrder.begin()+i);
+
 			}
 		}
 		//Ne laisse sélectionné que celui du dessus en cas de 2 modules superposés
@@ -167,9 +229,13 @@ public:
 				if (libraryModules[i]->onTouchDown(x, y)){
 					isLibraryOpened = false;
 					
+					ofLogNotice() << "passe";
 					modules.push_back(new Module(libraryModules[i]->getTypeSize(), libraryModules[i]->getTypeMat(), IDmodulesCount++));
-					modules[IDmodulesCount-1]->isSelected = true;
-					touchOrder.push_back(IDmodulesCount-1);
+					ofLogNotice() << "passe2";
+					modules[/*IDmodulesCount-1*/ (int)modules.size()-1]->isSelected = true;
+					ofLogNotice() << "passe3";
+					touchOrder.push_back(modules.size()-1/*IDmodulesCount-1*/);
+					ofLogNotice() << "passe4";
 				}
 			}
 		}	
@@ -183,45 +249,29 @@ public:
 	
 	//-----------------------------------------
 	void touchUp(int x, int y){
-		
-    	
-    	//Creation de module
-    	/*for (size_t i=0; i < wallButtons.size(); i++){
-			if (wallButtons[i]->isTouchedUp(x, y)){
-				if (modules.size() < SCREEN_MAX_NUMBER){
-		    		modules.push_back(new Module(wallButtons[i]->getID(), IDmodulesCount++));
-		    		touchOrder.push_back(IDmodulesCount-1);
-		    	}
-				if (modules.size() == SCREEN_MAX_NUMBER){
-			    	for (int i=0; i<wallButtons.size(); i++)
-		    			wallButtons[i]->setIsAvailable(false);
-		    	}
-				
-			}
-				
-		}*/
-		
+	
 		for (size_t i=0; i < 4; i++){
 			if (wallButtons[i]->isTouchedUp(x, y)){
 				switch (wallButtons[i]->getID()){
 					case 0: //library
 						//on ouvre une fenêtre avec tous les modules
-						if (IDmodulesCount < SCREEN_MAX_NUMBER)
+						/*ofLogNotice() << "number: " << (int)modules.size()-1;
+						if ((int)modules.size()-1 < SCREEN_MAX_NUMBER)*/
 							isLibraryOpened = true;
 						break;
 					case 1://delete
 						//on suppr le module sélectionné
-						ofLogNotice() << "on click " << moduleSelected();
 						if (moduleSelected() != -1)
 							modules[moduleSelected()]->setIsDeleted(true);
 						break;
-					case 3://ext speaker
+					case 2://ext speaker
 						//page musique
 						break;
-					case 4://save
-						//on sauvegarde le wall
+					case 3://save
+						//TODO: if new wall -> empty else name wall
+						saveWallGUI->setVisible(true);
+						saveWallTextInput->click();
 						break;
-					
 				}
 			}
 		}
@@ -258,24 +308,24 @@ public:
 			gridLines[i+6].set(gridSize.getX()+0.03*ofGetWidth(), (i+1)*GRID_RATIO, ofGetWidth() - 0.03*ofGetWidth(), (i+1)*GRID_RATIO);
 		}
 		
-		for(int i=0; i<7; i++){
+		for(int i=0; i<7; i++){<z²²
 			for (int j=0; j<7; j++){
 				gridRepresentation[i][j] = 0;
 			}
 		}*/
 		
-		bordureX = 63;
-		bordureY = (((ofGetHeight()-200.0)/75.0 - (float)((int)((ofGetHeight()-200)/75)))*75 + 75) /2;
-		for (int i = 0; i <10; i++){//verticales
-			gridLines[i].set(bordureX + i*127, 50+bordureY-10, bordureX + i*127, ofGetHeight() - 150 - bordureY+10);
+		bordureX = (((ofGetWidth()-50)/(1.7*GRID_RATIO) - (float)((int)((ofGetWidth()-50)/(1.7*GRID_RATIO))))*1.7*GRID_RATIO + 50) /2; //63;
+		bordureY = (((ofGetHeight()-200.0)/GRID_RATIO - (float)((int)((ofGetHeight()-200)/GRID_RATIO)))*GRID_RATIO +25 /*+GRID_RATIO*/) /2;
+		for (int i = 0; i <13; i++){//verticales
+			gridLines[i].set(bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, 50+bordureY-10, bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, ofGetHeight() - 120 - bordureY);
 		}
-		for (int i = 0; i < 7; i++){
-			gridLines[i+10].set(bordureX-10, 50+bordureY+i*75, ofGetWidth() - bordureX+10, 50+bordureY+i*75);
+		for (int i = 0; i < 9; i++){//horizontales
+			gridLines[i+13].set(bordureX-10, 50+bordureY+i*GRID_RATIO, ofGetWidth() - bordureX+10, 50+bordureY+i*GRID_RATIO);
 		}
 	}
 	
 	void gridDraw(){
-		for (int i=0; i<18; i++){
+		for (int i=0; i<22; i++){
 			ofPushStyle();
 	    	ofSetColor(40);
 	    	ofLine(gridLines[i].getX(), gridLines[i].getY(), gridLines[i].getWidth(), gridLines[i].getHeight());
@@ -304,6 +354,119 @@ public:
 			}*/
 		}
 	}
+	
+	
+	//-------------------------XML--------------------------------------//
+	
+	void wall2XML(){
+		modSettings.clear();
+	    lastTagNumber	= modSettings.addTag("WALL");
+	    //xmlStructure	= "<WALL>\n";
+	    
+	    modSettings.pushTag("WALL", 0);
+	    modSettings.setValue("ID", (int)names.size()-1, 0);
+	    modSettings.setValue("NAME", saveWallTextInput->getTextString());
+	    modSettings.addTag("SPLIT");
+		modSettings.pushTag("SPLIT");
+	    for (int i=0; i < splitableModules.size(); i++){
+	    	modSettings.addTag("S");
+		   	modSettings.pushTag("S");
+		    	
+		    	modSettings.addValue("A", splitableModules[i].x);
+		    	modSettings.addValue("B", splitableModules[i].y);
+	    	modSettings.popTag();
+	    }
+		modSettings.popTag();
+		
+	    for(int i = 0; i<modules.size(); i++){
+	
+	        lastTagNumber = modSettings.addTag("MODULES");
+	        modSettings.pushTag("MODULES", i);
+	        	modSettings.setValue("ID", modules[i]->getID(), 0);
+	        	modSettings.setValue("SIZE", modules[i]->getTypeSize(), 0);
+		        modSettings.setValue("TYPE", modules[i]->getTypeMat(), 0);
+		        modSettings.addTag("POS");
+		        modSettings.pushTag("POS");
+		        	modSettings.setValue("X", modules[i]->getPos().x, 0);
+		        	modSettings.setValue("Y", modules[i]->getPos().y, 0);
+		        modSettings.popTag();
+		        
+		       // getPosInGrid()
+	        modSettings.popTag();
+	    }
+	    modSettings.popTag();
+		ofLogNotice() << "save";
+		//save at : /storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml
+		
+		
+		//EDDY
+		//ofSetDataPathRoot("");
+	   	//modSettings.save("/storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml");
+		//ofLogNotice() << modSettings.save("file://192.168.1.17:8000/modules.xml");
+		modSettings.save("modules.xml");
+	}
+	
+	void XML2Wall(int wallID){
+	
+		ofLogNotice() << "load : " << wallID;
+	    modules.clear();
+	    touchOrder.clear();
+	    /**/
+	
+	    int numTagsWALL = modSettings.getNumTags("WALL");
+	    
+	    for (int i = 0; i < numTagsWALL; i++){
+	    	modSettings.pushTag("WALL", i);
+	    	//if (modSettings.getValue("ID", i) == wallID){
+	    		//modSettings.pushTag("WALL");
+		    		int numTagsMODULES = modSettings.getNumTags("MODULES");
+		    		for (int j = 0; j < numTagsMODULES; j++){
+		    			modSettings.pushTag("MODULES", j);
+		    			
+		    				int tmpSize;
+		    				tmpSize = modSettings.getValue("SIZE", j);
+		    				int tmpType;
+		    				tmpType = modSettings.getValue("TYPE", j);
+		    				
+		    				
+		    				ofPoint tmpPos;
+		    				modSettings.pushTag("POS");
+			        			tmpPos.x = modSettings.getValue("X", j);
+			        			tmpPos.y = modSettings.getValue("Y", j);
+			        		modSettings.popTag();
+			        		
+			        		int tmpID;
+			        		tmpID = modSettings.getValue("ID", j);
+			        		if (IDmodulesCount < tmpID) IDmodulesCount = tmpID;
+			        		
+			        		modules.push_back(new Module(tmpSize, tmpType, /*IDmodulesCount++*/ tmpID));
+		    				modules[j]->setPos(tmpPos.x, tmpPos.y);
+		    				touchOrder.push_back(j);
+		        			
+		    			modSettings.popTag();
+		    			
+		    			
+		    		}
+		    	//modSettings.popTag();
+	    	//}
+	    	modSettings.popTag();
+	    }
+	    modSettings.popTag();
+	}
+	
+	void getWallList(){
+		names.clear();
+		int numTagsWALL = modSettings.getNumTags("WALL");
+	    for (int i = 0; i < numTagsWALL; i++){
+	    	modSettings.pushTag("WALL", i);
+	    		//names.push_back((string)modSettings.getValue("NAME", 0));
+	    	modSettings.popTag();
+	    }
+	    
+	    names.push_back("CREATE A NEW WALL");
+	}
+	    
+	//-------------------
 	
 	int moduleSelected(){
 		for (int i = 0; i < modules.size(); i++){

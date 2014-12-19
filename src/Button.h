@@ -122,6 +122,9 @@ class Button{
 	bool getIsActiv(){
 		return isActiv;
 	}
+	void setIsTouched(bool isTouched){
+		this->isTouched = isTouched;
+	}
 	void setVisible(bool isVisible){
 		this->isVisible = isVisible;
 	}
