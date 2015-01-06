@@ -27,16 +27,25 @@ void ofApp::setup(){
 	appWall = new Wall();
 	appWall->setup();
 	
+	//appWall->XML2Wall(0);
+	
 	appMenu = new Menu();
 	appMenu->setup(appWall->names);
 	
+	loadChannelXml();
+	
+	for (int i=0; i<demoChannelNumber;i++){
+		demoChannels.push_back(new Channel(i, modSettings));
+		demoChannels[i]->playButton->setID(IDbuttonsCount++);
+	}
+	
 	//Channels demo Home page
 	string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel", "Picasso", "Pantera", "Bisounours", "Lapin", "Cthulhu", "Coquillages"};
-	for (int i=0; i<12;i++){
+	/*for (int i=0; i<12;i++){
 		demoChannels.push_back(new Channel("channel"+ofToString(i)+".png", channelNames[i], "user", rand()%5, i));
 		demoChannels[i]->playButton->setID(IDbuttonsCount++);
 		
-	}
+	}*/
 	string myChannelNames[] = {"Réseaux", "Vacances", "Bouffe"};
 	for (int i=0; i<3;i++){
 		myChannels.push_back(new Channel("channel"+ofToString(i)+".png", myChannelNames[i], "user", rand()%5, i+6));
@@ -46,15 +55,18 @@ void ofApp::setup(){
 	//OSC message
 	ofxOscMessage m;
 	m.setAddress( "/INIT");
-	for (int i = 0; i < WALLNUMBER; i++){
+	
+	//TODO: make it work
+	/*for (int i = 0; i < WALLNUMBER; i++){
 	 	ofxOscSender tempSender;
 	 	tempSender.setup(hosts[i], PORT);
 		senders.push_back(tempSender);
 		senders[i].setup(hosts[i], PORT);
 		senders[i].sendMessage( m );
-	}
+	}*/
 	sender.setup(hosts[0], PORT);
 	sender.sendMessage( m );
+	
 	receiver.setup( RECEIVEPORT );
 	
 	//Buttons
@@ -72,8 +84,7 @@ void ofApp::setup(){
 	GUIbuttons.push_back(new Button("back", 16, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "BACK", "BACK", 40));
 	
 	//Save wall
-	
-	
+
 	//Settings GUI
 	ofxUIColor cb = ofxUIColor(0, 0, 0, 125); //Background 
 	ofxUIColor cbgui = ofxUIColor(0, 0, 0, 0);
@@ -117,6 +128,23 @@ void ofApp::setup(){
 
 }
 
+void ofApp::loadChannelXml(){
+			ofFile tempXML;
+		    ofBuffer dataBuffer;
+		    
+		    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
+		    dataBuffer = ofLoadURL("http://192.168.1.13:8000/geo.xml").data;
+		    ofBufferToFile("temp.xml", dataBuffer);
+		    
+		    modSettings.load("temp.xml");
+		    tempXML.remove();
+		    
+		    modSettings.pushTag("channels");
+		    demoChannelNumber =  modSettings.getNumTags("channel");
+		    modSettings.popTag();
+
+}
+
 void ofApp::moodEvent(ofxUIEventArgs &e){
 	string name = e.widget->getName();
 	if(name == "Select your mood")
@@ -154,6 +182,7 @@ void ofApp::update() {
 	
 	if (pageLevel != AUTOMIX_PAGE && isTempChannelCreated){
 		tempChannel->guiTitle->setVisible(false);
+		tempChannel->guiTags->setVisible(false);
 		tempChannel->guiDescriptionEdit->setVisible(false);
 		isTempChannelCreated = false;
 	}	
@@ -353,19 +382,17 @@ void ofApp::update() {
     		}
     		break;
     	case CHANNELSELECT_PAGE:
-    		for(int i=0; i<4; i++){
-    			if (i%2==0) demoChannels[i]->tempPosition.set((i/2 +1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize());
-				else demoChannels[i]->tempPosition.set((i/2+1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize() + CHANNEL_IMAGE_HEIGHT + 80);
-			}
-			for(int i=4; i<12; i++){
-				demoChannels[i]->tempPosition.set(-1, -1);
+    		for(int i=0; i<demoChannelNumber; i++){
+    			if (i < 4) {
+	    			if (i%2==0) demoChannels[i]->tempPosition.set((i/2 +1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize());
+					else demoChannels[i]->tempPosition.set((i/2+1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize() + CHANNEL_IMAGE_HEIGHT + 80);
+				} else {
+					demoChannels[i]->tempPosition.set(-1, -1);
+				}
 			}
     		break;
     }    
-	
 }
-
-
 
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -375,7 +402,7 @@ void ofApp::draw() {
     switch (pageLevel){
     	case HOME_PAGE:
     		//if (slide == 0){
-	    		for(int i=0; i<12; i++){
+	    		for(int i=0; i<demoChannelNumber; i++){
 	    			ofPushMatrix();
 	    			ofPushStyle();
 		    			//preview de channels
@@ -423,40 +450,30 @@ void ofApp::draw() {
     		break;
     		
     	case CHANNELSELECT_PAGE:
-    		//int spaceBetweenChannel = 20;
     		ofPushStyle();
     			ofSetColor(40);
-    			ofLine(1.0/3*ofGetWidth()-20, HEIGHT_BUTTONS+20, 1.0/3*ofGetWidth()-20, ofGetHeight()-HEIGHT_BUTTONS-20);
+    			
+    			ofLine(1.0/3*ofGetWidth()-20, HEIGHT_BUTTONS+20, 1.0/3*ofGetWidth()-20, ofGetHeight()-HEIGHT_BUTTONS-20); //verticale
+    			ofLine(1.0/3*ofGetWidth()+30+titleFont.stringWidth("SEARCH"), HEIGHT_BUTTONS +titleFont.getSize()+20, ofGetWidth()-20, HEIGHT_BUTTONS +titleFont.getSize()+20); //horizontale search
+    			
     			titleFont.drawString("MY CHANNELS", 20, HEIGHT_BUTTONS + 20+titleFont.getSize());
+    			titleFont.drawString("BOOKMARKS", 20 , ofGetHeight()/2+titleFont.getSize());
+    			titleFont.drawString("SEARCH", 1.0/3*ofGetWidth()+20 , HEIGHT_BUTTONS + 20+titleFont.getSize());
+    			
     			for (int i = 0; i <myChannels.size(); i++){
     				myChannels[i]->drawMini(20, HEIGHT_BUTTONS + 20+titleFont.getSize()+ 30 + i*(font.getSize()+30));
     			}
-    			titleFont.drawString("BOOKMARKS", 20 , ofGetHeight()/2+titleFont.getSize());
-    			for (int i = 0; i < 4; i++){
-    				demoChannels[i+2]->drawMini(20, ofGetHeight()/2+titleFont.getSize()+ 30 + i*(font.getSize()+30));
+    			for (int i = 0; i < demoChannelNumber; i++){
+    				if (i<4) demoChannels[i]->drawMini(20, ofGetHeight()/2+titleFont.getSize()+ 30 + i*(font.getSize()+30));
     			}
-    			
-    			titleFont.drawString("SEARCH", 1.0/3*ofGetWidth()+20 , HEIGHT_BUTTONS + 20+titleFont.getSize());
-    			
     			if ( appMenu->searchTextInput->getTextString()!= "Search"){// !(strcmp(appMenu->searchTextInput->getTextString(), "Search") == 0)){
     				font.drawString(appMenu->searchTextInput->getTextString(), 1.0/3*ofGetWidth()+40+titleFont.stringWidth("SEARCH"), HEIGHT_BUTTONS + 25+font.getSize());
     			}
     			
-    			for(int i=0; i<4; i++){
-    				demoChannels[i]->drawPreview();
-    				/*if (i%2==0) demoChannels[i]->drawPreview((i/2 +1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize());
-					else demoChannels[i]->drawPreview((i/2+1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize() + CHANNEL_IMAGE_HEIGHT + 80);*/
-				}
-				/*for(int i=4; i<12; i++){
-					demoChannels[i]->tempPosition.set(-1, -1);
-				}*/
-				
-				
-    			
-    			ofLine(1.0/3*ofGetWidth()+30+titleFont.stringWidth("SEARCH"), HEIGHT_BUTTONS +titleFont.getSize()+20, ofGetWidth()-20, HEIGHT_BUTTONS +titleFont.getSize()+20);
-    			
+    			for(int i=0; i<demoChannelNumber; i++)
+    				if (i < 4) demoChannels[i]->drawPreview();
+
     		ofPopStyle();
-    	
     		break;
     		
     	case AUTOMIX_PAGE:
@@ -578,6 +595,7 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 	
 	
 		//Regarde si un bouton a été actionné et récupère l'ID si c'est le cas
+		
 		//Menu buttons
 		for (size_t i=0; i < appMenu->getButtons().size(); i++){
 			if (appMenu->getButtons()[i]->isTouchedUp(x, y)){
@@ -586,7 +604,6 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 			continue;
 			}
 		}
-		
 		
 		//Channel buttons
 		for (int i=0; i < demoChannels.size(); i++){
@@ -598,7 +615,6 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 				continue;
 			}
 		}
-		
 		for (int i=0; i < myChannels.size(); i++){
 			if (myChannels[i]->playButton->isTouchedUp(x, y)){
 				buttonNumber = myChannels[i]->playButton->getID();
@@ -619,6 +635,7 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 		}
 		
 		//Rend inactif tous les boutons autre que le nouvel actif
+		//TODO: plus d'actualité
 		if (isButtonActioned){
 			for(size_t i=0; i < GUIbuttons.size(); i++){
 				if (buttonNumber != GUIbuttons[i]->getID()){

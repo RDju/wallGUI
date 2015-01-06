@@ -52,6 +52,49 @@ class Channel{
 		ofxUIColor cpo;
 		
 		
+		
+		
+		Channel(int ID, ofxXmlSettings modSettings):ID(ID)
+		{
+		
+			xml2channel(ID, modSettings);
+			imgVidRate = 0;
+			transitionSpeed = 0;
+			colorHarmony = 0;
+			sensorInput = 0;
+			sensorSensitivity = 0;
+			
+			automixImageFound = true;
+			tempPosition.set(0, 0);
+			
+			titleFont.loadFont("open-sansbold-italic.ttf", 15);
+			infoFont.loadFont("OpenSans-Regular.ttf", 0.02*ofGetHeight());
+			
+			cb = ofxUIColor(0, 0, 0, 0); //Background 
+			cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
+		    co = ofxUIColor(255, 0, 0, 255); // ???
+		    coh = ofxUIColor(255, 255, 255, 255); //tour quand sélectionné
+		    cf = ofxUIColor(40, 40, 40, 255); //texte non sélectionné
+		    cfh = ofxUIColor(255, 255, 255, 255); //texte sélectionné + curseur
+		    cp = ofxUIColor(255, 255, 255, 255); // ???
+		    cpo = ofxUIColor(255, 0, 0, 255);
+		    
+		    playButton = new Button ("play", ID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PLAY", "PLAY", 40);
+		    
+		    guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
+			guiDescription->setFont("OpenSans-Regular.ttf");
+			guiDescription->setWidgetFontSize(OFX_UI_FONT_LARGE);
+			guiDescription->setUIColors( cb, cb, coh, cf, cfh, cp, cpo );
+			descriptionArea = guiDescription->addTextArea("description", description); 
+			
+			guiDescription->setVisible(false);
+		
+			//dans xml:
+			
+			
+		}
+		
+		//création d'un nouveau channel dans l'appli
 		Channel(string text)
 		{
 			creator = "user";
@@ -113,6 +156,8 @@ class Channel{
 				
 		}
 		
+		
+		//en dure
 		Channel(string url, string title, string creator, int rate, int ID): imageUrl(url), title(title), creator(creator), rate(rate), ID(ID)
 		{
 			channelImage.loadImage(url);
@@ -156,6 +201,40 @@ class Channel{
 			descriptionArea = guiDescription->addTextArea("description", description); 
 			
 			guiDescription->setVisible(false);
+		}
+		
+		void globalInit(){
+			//TODO
+		
+		}
+		
+		void xml2channel(int ID, ofxXmlSettings modSettings){
+			
+			/*ofFile tempXML;
+		    ofBuffer dataBuffer;
+		    
+		    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
+		    dataBuffer = ofLoadURL("http://192.168.1.13:8000/geo.xml").data;
+		    //ofLogNotice("xml tree") << dataBuffer;
+		    ofBufferToFile("temp.xml", dataBuffer);
+		    
+		    modSettings.load("temp.xml");
+		    tempXML.remove();*/
+		    
+		    modSettings.pushTag("channels");
+			    modSettings.pushTag("channel", ID);
+				    creator = modSettings.getValue("by", "error");
+				    price = modSettings.getValue("price", "error");
+					imageUrl = "http://192.168.1.13:8000/"+modSettings.getValue("playfolder", "error")+"/image/1.jpg";
+					description = modSettings.getValue("blurb", "error");
+					tagsString = modSettings.getValue("keyword", "error");
+					title = modSettings.getValue("title", "error");
+			
+			channelImage.loadImage(imageUrl);
+			channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
+			
+			//ofLogNotice("info channel") << ID << "\n" << title << " " << price << " by " << creator << " " << imageUrl << " " << description;
+		
 		}
 		
 		void saveChannel(int buttonID){

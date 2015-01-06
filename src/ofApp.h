@@ -9,15 +9,18 @@
 
 
 #include "ofMain.h"
+
+#include "ofxAndroid.h"
+#include "ofxOsc.h"
+#include "ofxGui.h"
+#include "ofxUI.h"
+#include "ofxHTTP.h"
+
 #include "Button.h"
 #include "Module.h"
 #include "Channel.h"
 #include "Menu.h"
 #include "Wall.h"
-#include "ofxAndroid.h"
-#include "ofxOsc.h"
-#include "ofxGui.h"
-#include "ofxUI.h"
 
 
 #define WALLNUMBER 1
@@ -73,6 +76,7 @@ public:
 	void cancelPressed();
 
 	void OSCcatch();
+	void loadChannelXml();
 	
 	//bool isInVector(vector<int> pagesVector, int value);
 
@@ -101,7 +105,10 @@ public:
 	ofTrueTypeFont titleFont;
 	ofImage background;
 	vector<Channel*> demoChannels;
+	int demoChannelNumber;
 	vector<Channel*> myChannels;
+	
+	ofxXmlSettings modSettings;
 
 	
 	ofxUICanvas *guiChannelSettings;
@@ -114,9 +121,10 @@ public:
 	void exit(); 
 	
 	//XML
-	string wallURL = "http://192.168.1.14:8000/wallConf.txt";
-	string myChannelsURL = "http://192.168.1.14:8000/myChannelsConf.txt";
-	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.txt";
+	string wallURL = "http://192.168.1.14:8000/wallConf.xml";
+	string myChannelsURL = "http://192.168.1.14:8000/myChannelsConf.xml";
+	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.xml";
+	
 	
 private:
 	vector<ofxOscSender> senders;
