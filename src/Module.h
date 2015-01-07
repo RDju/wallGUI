@@ -21,31 +21,35 @@
 
 class Module{
 	private:
-		int typeSize;
-		int typeMat;
+		int typeSize;//13, 24 ou 27
+		int typeMat; // screen, LED, screen LED, texture
 		int ID;
-		ofPoint pos;
-		ofPoint size;
-		ofPoint touch;
+		ofPoint pos;//absolute pos
+		ofPoint locationInGrid;//pos in grid
+		ofPoint size;//depending on typeSize
+		ofPoint touch;//xy between the user finger et the left right angle of the module
 		ofTrueTypeFont font;
 		
 		bool isTouched;
 		bool isDeleted;
+		bool isSelected;
 		bool isWellPlaced;
 		
 		ofColor color;
 		
+		//calcule la marge nécessaire en fonction de la taille de la grille
+		// /!\aussi dans wall --> faut changer les deux
 		int bordureX = (((ofGetWidth()-50)/(1.7*GRID_RATIO) - (float)((int)((ofGetWidth()-50)/(1.7*GRID_RATIO))))*1.7*GRID_RATIO + 50) /2; 
 		int bordureY = (((ofGetHeight()-200.0)/GRID_RATIO - (float)((int)((ofGetHeight()-200)/GRID_RATIO)))*GRID_RATIO + 25 /*GRID_RATIO*/) /2;
 		
 	
 	public:
-		ofPoint locationInGrid;
-		bool isSelected;
+		
+		
 	
 	Module(int typeSize, int typeMat, int ID): typeSize(typeSize), ID(ID), typeMat(typeMat)
 	{
-		pos.set(bordureX, bordureY+50);//(0.1*ofGetWidth()+WIDTH_BUTTONS, ofGetHeight() - 0.15*ofGetHeight() - HEIGHT_BUTTONS, 0);
+		pos.set(bordureX, bordureY+50);//default pos
 		touch.set(0, 0, 0);
 		isTouched = false;
 		isDeleted=false;
@@ -91,6 +95,7 @@ class Module{
 			ofSetColor(color);
 			ofRect(pos.x, pos.y, size.x, size.y);
 			
+			//if far from the others modules
 			if (!isWellPlaced){
 				ofSetColor(255, 0, 0);
 				ofLine(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
@@ -116,11 +121,12 @@ class Module{
 					font.drawString("texture", pos.x+5, pos.y+5+ font.getSize());
 					break;
 			}
-			if(ID != -1)
+			if(ID != -1)//library modules
 				font.drawString(ofToString(ID), pos.x+size.x/2, pos.y+ size.y/2 + font.getSize());
 		ofPopStyle();
 	}
 	
+	//si les deux modules sont l'un sur l'autre
 	bool isCollision(Module *module){
 		if (( module->pos.x + module->size.x <= this->pos.x)
 			|| (module->pos.y + module->size.y <= this->pos.y)
@@ -132,6 +138,7 @@ class Module{
 			return true;
 		}
 	}
+	//si les deux modules ne sont pas l'un à coté de l'autre
 	bool isAlone(Module *module){
 		if (( module->pos.x + module->size.x -10 <= this->pos.x &&  module->pos.y + module->size.y -10 <= this->pos.y) //angle
 			|| (module->pos.x +10 >= this->pos.x+this->size.x && module->pos.y + module->size.y -10 <= this->pos.y)
@@ -145,6 +152,8 @@ class Module{
 				return true;
 		else return false;
 	}
+	
+	//si le module se trouve à coté d'un autre de même type et taille
 	bool isSplitable(Module *module){
 		if (abs(this->pos.x - module->pos.x) == (int)(1.7*GRID_RATIO) && this->pos.y == module->pos.y) return true;
 		else return false;
@@ -159,30 +168,29 @@ class Module{
 			}
 		return false;
 	}
+	
 	void onTouchUp(int x, int y){
 		isTouched = false;
 		if (!(x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y))
 			isSelected = false;
 	}
+	
 	void onTouchMove(int x, int y){
-		//si dans le rectangle
-		if (ID != -1){
+		if (ID != -1){//library modules don't move
 			if ( x-touch.x > bordureX && x+(size.x-touch.x) < ofGetWidth()-bordureX && y-touch.y > bordureY+50 && y+(size.y-touch.y) < ofGetHeight()-150){ 
 			   if (isTouched) {
-			   
+			   		//déplacement de case en case et non en continue
+			   		//modifier les 50 pour donner plus ou moins de marge pour le déplacement
 			   		if ( (int)abs(x-touch.x - bordureX) % (int)(1.7*GRID_RATIO) < 50 && (int)abs(y - touch.y - bordureY - 50) % GRID_RATIO < 50 ){
-			   		
 			   			pos.set(x-touch.x - ((int)(x-touch.x - bordureX) % int(1.7*GRID_RATIO)), (y-touch.y) - ((int)(y-touch.y - bordureY - 50) % GRID_RATIO));
-			   			//locationInGrid.set((int)((x-touch.x- bordureX)/(GRID_RATIO*1.7)-4), (int)((y-touch.y- bordureY - 50)/GRID_RATIO));
 			   			getPosInGrid();
 			   		}
-			   		/*else
-			   			pos.set(x-touch.x,y-touch.y);*/
 			   	}
 			}
 		}
 	}
 	
+	//not used
 	void onDoubleClick(int x, int y){
 		if (x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y )
 			isDeleted=true;

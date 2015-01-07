@@ -5,16 +5,22 @@
 #define CHANNEL_IMAGE_WIDTH (ofGetWidth() - 3.0*10.0/100*ofGetWidth())/3.0
 #define CHANNEL_IMAGE_HEIGHT (ofGetHeight() - HEIGHT_BUTTONS*2 - 2.0*1.0/9*ofGetHeight() - 1.0/15 * ofGetHeight())/2.0
 
+#define PREVIEW_IMAGE_WIDTH 2.0/5*ofGetWidth() 
+#define PREVIEW_IMAGE_HEIGHT 2.0/5*ofGetHeight()
+
 class Channel{
 	public:
+	
+		//TODO: inverser les deux car mauvaise dénomination
 		ofImage channelImage;
+		ofImage previewImage;
 		
 		string title;
 		string creator;
 		string price;
 		string description;
 		string imageUrl;
-		vector<string> tags;
+		vector<string> tags;//not used
 		string tagsString;
 		int ID;
 		int rate;
@@ -30,6 +36,7 @@ class Channel{
 		ofxUICanvas *guiTags;
 		ofxUITextInput *tagsTextInput;
 		
+		//automix canvas
 		ofxUICanvas *guiTitle;
 		ofxUITextInput *titleTextInput;
 		ofxUICanvas *guiDescriptionEdit;
@@ -38,9 +45,9 @@ class Channel{
 		
 		Button *playButton;
 		
-		ofPoint tempPosition;
+		ofPoint tempPosition;//position on home page
 		
-		bool automixImageFound;
+		bool automixImageFound;//via osc
 		
 		ofxUIColor cb;
 		ofxUIColor cb2;
@@ -51,19 +58,22 @@ class Channel{
 		ofxUIColor cp;
 		ofxUIColor cpo;
 		
+		ofxXmlSettings modSettings;
 		
 		
-		
-		Channel(int ID, ofxXmlSettings modSettings):ID(ID)
+		//Creation depuis un xml
+		Channel(int ID, string path):ID(ID)
 		{
 		
-			xml2channel(ID, modSettings);
+			xml2channel(path);
+			
 			imgVidRate = 0;
 			transitionSpeed = 0;
 			colorHarmony = 0;
 			sensorInput = 0;
 			sensorSensitivity = 0;
 			
+			rate = rand()%5;
 			automixImageFound = true;
 			tempPosition.set(0, 0);
 			
@@ -88,13 +98,9 @@ class Channel{
 			descriptionArea = guiDescription->addTextArea("description", description); 
 			
 			guiDescription->setVisible(false);
-		
-			//dans xml:
-			
-			
 		}
 		
-		//création d'un nouveau channel dans l'appli
+		//création d'un nouveau channel dans l'appli (automix)
 		Channel(string text)
 		{
 			creator = "user";
@@ -157,11 +163,14 @@ class Channel{
 		}
 		
 		
-		//en dure
+		//en dure (plus utilisé)
 		Channel(string url, string title, string creator, int rate, int ID): imageUrl(url), title(title), creator(creator), rate(rate), ID(ID)
 		{
 			channelImage.loadImage(url);
 			channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
+			previewImage.loadImage(url);
+			previewImage.resize(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
+			
 			titleFont.loadFont("open-sansbold-italic.ttf", 15);
 			titleFont.setEncoding(OF_ENCODING_ISO_8859_15);
 			infoFont.loadFont("OpenSans-Regular.ttf", 0.02*ofGetHeight());
@@ -208,35 +217,35 @@ class Channel{
 		
 		}
 		
-		void xml2channel(int ID, ofxXmlSettings modSettings){
+		void xml2channel(string path){
 			
-			/*ofFile tempXML;
+			//save the distant xml file in a temp local file
+			ofFile tempXML;
 		    ofBuffer dataBuffer;
 		    
 		    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
-		    dataBuffer = ofLoadURL("http://192.168.1.13:8000/geo.xml").data;
-		    //ofLogNotice("xml tree") << dataBuffer;
+		    dataBuffer = ofLoadURL(path).data;
 		    ofBufferToFile("temp.xml", dataBuffer);
 		    
+		    //load the local xml file
 		    modSettings.load("temp.xml");
-		    tempXML.remove();*/
+		    tempXML.remove();
 		    
-		    modSettings.pushTag("channels");
-			    modSettings.pushTag("channel", ID);
+		    modSettings.pushTag("channel");
 				    creator = modSettings.getValue("by", "error");
 				    price = modSettings.getValue("price", "error");
-					imageUrl = "http://192.168.1.13:8000/"+modSettings.getValue("playfolder", "error")+"/image/1.jpg";
+					imageUrl = "http://192.168.1.13:8000/wallChannels/"+modSettings.getValue("playfolder", "error")+"/image/1.jpg";
 					description = modSettings.getValue("blurb", "error");
 					tagsString = modSettings.getValue("keyword", "error");
 					title = modSettings.getValue("title", "error");
 			
 			channelImage.loadImage(imageUrl);
 			channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
-			
-			//ofLogNotice("info channel") << ID << "\n" << title << " " << price << " by " << creator << " " << imageUrl << " " << description;
-		
+			previewImage.loadImage(imageUrl);
+			previewImage.resize(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
 		}
 		
+		//temporarly save localy the channel from automix (don't survive a reboot)
 		void saveChannel(int buttonID){
 			playButton = new Button ("play", buttonID, 0, 0, 1.0/10*ofGetWidth(), HEIGHT_BUTTONS-20, 3, "PLAY", "PLAY", 40);
 			guiDescription = new ofxUICanvas(  50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+40+titleFont.getSize()*2, 3.0/5*ofGetWidth()-60, ofGetHeight() - 2*HEIGHT_BUTTONS+40);
@@ -248,6 +257,7 @@ class Channel{
 			guiDescription->setVisible(false);
 		}
 		
+		//on home page
 		void drawPreview(/*int x, int y*/){
 			int x = tempPosition.x;
 			int y = tempPosition.y;
@@ -257,20 +267,19 @@ class Channel{
 					ofSetColor(40);
 					titleFont.drawString(title, x, y);
 					ofSetColor(255);
-					channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
 					channelImage.draw(x, y+5/*+titleFont.getSize()*/);
 					ofSetColor(127);
 					infoFont.drawString("By: " + creator, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()+10);
 					infoFont.drawString("Price: " + price, x, y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+ infoFont.getSize()*2 + 15);
 					
-					ofSetCircleResolution(100);
-					for (int i = 0; i < 5; i ++ ){
+					/*ofSetCircleResolution(100);
+					for (int i = 0; i < 5; i ++ ){ //rate
 						if (rate>i) ofFill();
 						else ofNoFill();
 						
 						ofSetColor(36, 37, 38);
-						ofCircle(x+CHANNEL_IMAGE_WIDTH*2.0/3+i*infoFont.getSize()+i*0.5*infoFont.getSize(), y/*+1.0/32*ofGetHeight()*/+CHANNEL_IMAGE_HEIGHT+2*infoFont.getSize(), infoFont.getSize()/1.5);
-					}
+						ofCircle(x+CHANNEL_IMAGE_WIDTH*2.0/3+i*infoFont.getSize()+i*0.5*infoFont.getSize(), y+CHANNEL_IMAGE_HEIGHT+2*infoFont.getSize(), infoFont.getSize()/1.5);
+					}*/
 					
 				//tempPosition.set(x, y);
 							
@@ -280,10 +289,10 @@ class Channel{
 			}
 		}
 		
+		//on display channel
 		void drawPage(){
 			if (imageUrl != ""){
-				channelImage.resize(2.0/5*ofGetWidth(), 2.0/5*ofGetHeight());
-				channelImage.draw(20, HEIGHT_BUTTONS+20);
+				previewImage.draw(20, HEIGHT_BUTTONS+20);
 			} else {
 				ofPushStyle();
     				ofSetColor(40, 40, 40, 255);
@@ -297,13 +306,13 @@ class Channel{
 			titleFont.drawString(title + " @ ", 25, HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()+5);
 			infoFont.drawString( creator, 25+titleFont.stringWidth(title + " @ :"), HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()+5);
 			
-			for (int i = 0; i < 5; i ++ ){
+			/*for (int i = 0; i < 5; i ++ ){//rate
 				if (rate>i) ofFill();
 				else ofNoFill();
 					
 				ofSetColor(36, 37, 38);
 				ofCircle(20+2.0/5*ofGetWidth()-100+i*infoFont.getSize()+i*0.5*infoFont.getSize(), HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()/1.5 / 2 + 10, infoFont.getSize()/1.5);
-			}
+			}*/
 			
 			titleFont.drawString("# ", 25, HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()+50);
 			infoFont.drawString(tagsString, 25 + titleFont.stringWidth("# :"), HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()+50);
@@ -319,12 +328,14 @@ class Channel{
 			ofPopStyle();
 		}
 		
+		//on select channel
 		void drawMini(int x, int y){
 			playButton->setPos(x, y);
 			playButton->draw();
 			infoFont.drawString(title, x+ 1.0/9*ofGetWidth() + 10, y+infoFont.getSize()+10);
 		}
 		
+		//modify automix page
 		void drawAutomixCreation(){
 		
 			guiDescriptionEdit->setVisible(false);
@@ -336,8 +347,7 @@ class Channel{
     				ofRect(20, HEIGHT_BUTTONS+20, 2.0/5*ofGetWidth(), 2.0/5*ofGetHeight());
     			ofPopStyle();
     		} else {
-    			channelImage.resize(2.0/5*ofGetWidth(), 2.0/5*ofGetHeight());
-    			channelImage.draw(20, HEIGHT_BUTTONS+20);
+    			previewImage.draw(20, HEIGHT_BUTTONS+20);
     		}
     		
     		ofPushStyle();
@@ -346,21 +356,19 @@ class Channel{
     			
     			guiTags->setVisible(true);
     			tagsString = tagsTextInput->getTextString(); // set in an update...
-    			
-				//infoFont.drawString(tags, 25 + titleFont.stringWidth("# :"), HEIGHT_BUTTONS+20+2.0/5*ofGetHeight()+infoFont.getSize()+50);
-			
+    						
 				titleFont.drawString("SETTINGS", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize());
 				infoFont.drawString ("Photo / Video", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+45);
 				infoFont.drawString ("Transition Speed", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+100);
 				infoFont.drawString ("Color Harmony", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+155);
 				infoFont.drawString ("Sensors Input", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+210);
-				//infoFont.drawString ("Sensor Sensitivity", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+265);
 			
 				titleFont.drawString("MOODS", 50 + 2.0/5*ofGetWidth(), HEIGHT_BUTTONS+20+titleFont.getSize()+350);
 			ofPopStyle();
 			
 		}
 		
+		//save automix page
 		void drawAutomixValidation(){
 			guiTags->setVisible(false);
 			if (!automixImageFound) {
@@ -370,8 +378,7 @@ class Channel{
     				ofRect(20, HEIGHT_BUTTONS+20, 2.0/5*ofGetWidth(), 2.0/5*ofGetHeight());
     			ofPopStyle();
     		} else {
-    			channelImage.resize(2.0/5*ofGetWidth(), 2.0/5*ofGetHeight());
-    			channelImage.draw(20, HEIGHT_BUTTONS+20);
+    			previewImage.draw(20, HEIGHT_BUTTONS+20);
     		}
     		ofPushStyle();
     			ofSetColor(40);
@@ -406,10 +413,10 @@ class Channel{
 			if (tempPosition.x !=-1 && x>tempPosition.x && x < tempPosition.x+CHANNEL_IMAGE_WIDTH && y > tempPosition.y && y < tempPosition.y + CHANNEL_IMAGE_HEIGHT + 2*infoFont.getSize()) {
 				return true;
 			}
-			return false;
-			
+			return false;	
 		}
 		
+		//set the tags from automixTextInput of the menu to the tagsTextInput of the automix page
 		void setTagsText(string automixTags){
 			tagsTextInput->setTextString(automixTags);
 		}

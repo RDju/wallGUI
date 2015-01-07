@@ -6,16 +6,13 @@
 #include <string.h>
 #include <vector>
 
-
-
-#include "ofMain.h"
-
 #include "ofxAndroid.h"
 #include "ofxOsc.h"
 #include "ofxGui.h"
 #include "ofxUI.h"
 #include "ofxHTTP.h"
 
+#include "ofMain.h"
 #include "Button.h"
 #include "Module.h"
 #include "Channel.h"
@@ -23,10 +20,12 @@
 #include "Wall.h"
 
 
-#define WALLNUMBER 1
-#define PORT 9001
+//#define WALLNUMBER 1 
+#define PORT 9999
 #define RECEIVEPORT 9003
+#define HTTPPORT 8000
 
+//default size of buttons
 #define X_BUTTONS 0.73*ofGetWidth()
 #define Y_BUTTONS 0.17*ofGetHeight()
 
@@ -39,12 +38,6 @@
 #define CHANNELDISPLAY_PAGE 7
 #define SETTINGS_PAGE 6
 
-#define CHANNELSNUMBER 3
-
-#define XGRID 
-#define YGRID 
-
-
 class ofApp : public ofxAndroidApp {
 	
 public:
@@ -55,22 +48,17 @@ public:
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void windowResized(int w, int h);
-
 	void touchDown(int x, int y, int id);
 	void touchMoved(int x, int y, int id);
 	void touchUp(int x, int y, int id);
 	void touchDoubleTap(int x, int y, int id);
 	void touchCancelled(int x, int y, int id);
 	void swipe(ofxAndroidSwipeDir swipeDir, int id);
-	
 	void moodEvent(ofxUIEventArgs &e);
-	
-
 	void pause();
 	void stop();
 	void resume();
 	void reloadTextures();
-
 	bool backPressed();
 	void okPressed();
 	void cancelPressed();
@@ -83,10 +71,9 @@ public:
 	
 	int pageLevel;
 	int previousPageLevel;
-	int slide;
+	int slide; //printed page of demo channel on home page
 	int buttonNumber;
 	bool isButtonActioned;
-	int activChannel;
 	int IDbuttonsCount;
 	int IDmyChannelsCount;
 	
@@ -99,7 +86,6 @@ public:
 	vector<Button*> GUIbuttons;
 
 	char stringFile[7];
-	char* channelsNames[CHANNELSNUMBER] = {"CHANNEL 1",  "CHANNEL 2", "CHANNEL 3"};
 	
 	ofTrueTypeFont font;
 	ofTrueTypeFont titleFont;
@@ -120,16 +106,20 @@ public:
 	
 	void exit(); 
 	
-	//XML
-	string wallURL = "http://192.168.1.14:8000/wallConf.xml";
-	string myChannelsURL = "http://192.168.1.14:8000/myChannelsConf.xml";
-	string demoChannelsURL = "http://192.168.1.14:8000/demoChannelsConf.xml";
-	
 	
 private:
 	vector<ofxOscSender> senders;
 	ofxOscReceiver receiver;
 	ofxOscSender sender;
-	char* hosts[2] = {"192.168.1.17", "192.168.1.182"};
+	
+	//IP of each wall server (only one wall working for the moment)
+	string hosts[2] = {"192.168.1.13", "192.168.1.182"};
+	
+	string pathToServer = "http://" + hosts[0] + ":" + ofToString(HTTPPORT) + "/";
+	
+	//XML TODO:use it
+	string wallURL = pathToServer + "wall.xml";
+	string myChannelsURL = pathToServer + "myChannels.xml";
+	string demoChannelsURL = pathToServer + "demoChannels.xml";
 	
 };

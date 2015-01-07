@@ -11,9 +11,9 @@ public:
 	
 	ofRectangle gridSize;
 	ofRectangle gridLines[22];//Contient les coordonnées de chaque ligne de la grille (en relatif par rapport au xy de gridSize)
-	vector<int> touchOrder;
-	vector<ofPoint> splitableModules;
-	int gridRepresentation[7][7];
+	vector<int> touchOrder; //classe les modules par ordre de dernier touché
+	vector<ofPoint> splitableModules;//liste de couples de modules splitables
+	int gridRepresentation[7][7];//not used
 	int IDbutton = 0;
 	
 	int bordureX; 
@@ -31,14 +31,13 @@ public:
 	ofxUITextInput *saveWallTextInput;
 	
 	ofxXmlSettings modSettings;
-    ofxXmlSettings mediaSettings;
 
     string xmlStructure;
 	int lastTagNumber;
 	
-	bool drawMedia;
+	bool drawMedia;//not used --> for preview ?
 	
-	vector<string> names;
+	vector<string> names;//walls names
 	
 	Wall(){}
 	
@@ -50,25 +49,18 @@ public:
 		gridSize.set( (float)(0.09*ofGetWidth()+WIDTH_BUTTONS), 0, (float)(ofGetWidth()-0.09*ofGetWidth()-WIDTH_BUTTONS), (float)(ofGetHeight()-0.15*ofGetHeight()-HEIGHT_BUTTONS));
 		gridSetup();
 		
-		/*wallButtons.push_back(new Button("screen13", 0, 0.045*ofGetWidth() , Y_BUTTONS, WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "13' screen", "13' screen"));
-		wallButtons.push_back(new Button("screen24", 1, 0.045*ofGetWidth() , Y_BUTTONS+HEIGHT_BUTTONS+0.013*ofGetHeight(), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "24' screen", "24' screen"));
-		wallButtons.push_back(new Button("screen27", 2, 0.045*ofGetWidth() , Y_BUTTONS+2*(HEIGHT_BUTTONS+0.013*ofGetHeight()), WIDTH_BUTTONS, HEIGHT_BUTTONS, WALLCREATION_PAGE, "27' screen", "27' screen"));*/
-		
 		wallButtons.push_back(new Button("library", IDbutton++, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , WALLCREATION_PAGE, "LIBRARY", "LIBRARY", 40));
 		wallButtons.push_back(new Button("delete", IDbutton++, 25+1.0/2*2.0/5*ofGetWidth(), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , WALLCREATION_PAGE, "DELETE", "DELETE", 40));
 		wallButtons.push_back(new Button("speaker", IDbutton++, 25+2*(1.0/2*2.0/5*ofGetWidth()), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , WALLCREATION_PAGE, "EXT SPEAKER", "EXT SPEAKER", 40));
 		wallButtons.push_back(new Button("save", IDbutton++, ofGetWidth()-25-(1.0/2*2.0/5*ofGetWidth()-10), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , WALLCREATION_PAGE, "SAVE", "SAVE", 40));
 		
 		
+		//Create a module of each type and size for the library
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j <3; j++)
 				libraryModules.push_back(new Module(j, i, -1));
 		
-		/*names.push_back("WALL DE LA CUISINE");    
-		names.push_back("WALL DU SALON");    
-		names.push_back("WALL DE LA CHAMBRE");*/
-		//names.push_back("CREATE A NEW WALL");
-		
+		//fill the walls names depending on a xml file
 		getWallListName();
 				
 		ofxUIColor cb = ofxUIColor(0, 0, 0, 0); //Background 
@@ -88,14 +80,6 @@ public:
 		saveWallTextInput->setAutoUnfocus(true);
 		saveWallTextInput->setAutoClear(true);
 		saveWallGUI->setVisible(false);
-		
-		//XML
-		if( modSettings.loadFile("modules.xml") && mediaSettings.loadFile("media.xml") ){
-			cout<<"mySettings.xml loaded!"<<endl;
-		}else{
-			cout<<"unable to load mySettings.xml check data/ folder"<<endl;
-		}
-		
 	}
 	
 	void update(){
@@ -104,10 +88,12 @@ public:
 	    for (size_t i = 0; i<modules.size(); i++){
 	    	if (modules[i]->getIsDeleted()){
 	    		modules.erase(modules.begin()+i);//delete module 
+	    		
 	    		/*for (size_t j=i; j<modules.size(); j++){//decrement the ID of module following the one just deleted
 	    			modules[j]->setID(modules[j]->getID()-1);
-	    		}*/
-	    		//IDmodulesCount--;
+	    		}
+	    		IDmodulesCount--;*/
+	    		
 	    		for (size_t j=0; j<touchOrder.size();j++){//remove the ID from the deleted module from touchOrder
 	    			if (touchOrder[j]==i){
 	    				touchOrder.erase(touchOrder.begin() + j);
@@ -116,16 +102,14 @@ public:
 	    				break;
 	    			}
 	    		}
-	    		
-	    		/*for (int i=8; i<11; i++)
-	    			wallButtons[i]->setIsAvailable(true);*/
 	    	}
 	    }
 	    
-	    //Detect collision
+	    
 	    for (int i = 0; i< modules.size(); i++){
-	    	modules[i]->setIsWellPlaced(true);
+	    	modules[i]->setIsWellPlaced(true);//init
 	    }
+	    //Detect collision --> not used
 	    /*for (size_t i = 0; i< modules.size(); i++){
 	    	for (size_t j = 0; j< modules.size(); j++){
 	    		if(j!=i && modules[i]->isCollision(modules[j]) && rankInTouchOrder(i)>rankInTouchOrder(j))
@@ -135,16 +119,12 @@ public:
 	    //Alone module
 	    if (modules.size() > 1){
 		    for (size_t i = 0; i< modules.size(); i++){
-		    	//if (modules[i]->getPos().y < gridSize.getHeight()){ // ???
 			    	bool alone=true;
-			    	for (size_t j = 0; j< modules.size(); j++){
-			    		if (i!=j && !modules[i]->isAlone(modules[j])){
-			    			alone = false;
-			    		}
-			    	}
+			    	for (size_t j = 0; j< modules.size(); j++)
+			    		if (i!=j && !modules[i]->isAlone(modules[j])) alone = false;
+			    		
 			    	if(alone) modules[i]->setIsWellPlaced(false);
 			    	else modules[i]->setIsWellPlaced(true);
-			   	//}
 		    }
 		}
 		
@@ -155,46 +135,32 @@ public:
 		    	for (size_t j = i+1; j< modules.size(); j++){
 		    		if (modules[i]->getTypeSize()==1 && modules[j]->getTypeSize()==1 && modules[i]->getTypeMat() == modules[j]->getTypeMat() && modules[i]->getTypeMat()!=3 && modules[i]->isSplitable(modules[j]) ){
 						splitableModules.push_back(ofPoint(i, j));
-						//ofLogNotice() << i << " et " << j << " splitable";
-		    		}
+					}
 		    	}
 			}
 		}
 		
+		//sauvegarde du wall
 		if (saveWallGUI->isVisible() && !saveWallTextInput->isClicked() ){
 			saveWallGUI->setVisible(false);
 
-			//TODO : save if new wall, modif if existing wall
-			wall2XML(names.size()-1);
+			wall2XML(names.size()-1);//save in xml
 			
 			ofLogNotice() << "create at id : " << names.size()-1;
 			
-			/*names.erase(names.end());
-			names.push_back(saveWallTextInput->getTextString());
-			names.push_back("CREATE A NEW WALL");*/
-			
-			getWallListName();
+			getWallListName();//modify names list depending on the new xml
 			newWallCreated = true;
 		}
 	}
 	
 	void draw(){
-	
-		/*ofPushStyle();
-    		ofFill();
-    		ofSetColor(10);
-    		ofRect(0.03*ofGetWidth(), 0.03*ofGetWidth(), WIDTH_BUTTONS+ 0.03*ofGetWidth(), ofGetHeight() - 2 * 0.045*ofGetHeight());
-    	ofPopStyle();*/
     		
 		gridDraw();
 		
-		for (size_t i=0; i < wallButtons.size(); i++){
-				wallButtons[i]->draw();
-		}
-		
+		for (size_t i=0; i < wallButtons.size(); i++)
+			wallButtons[i]->draw();
 		for (size_t i = 0; i<modules.size();i++){
     		modules[touchOrder[i]]->draw();
-    	}
 	}
 	
 	void drawLibrary(){
@@ -230,22 +196,21 @@ public:
 			}
 		}
 		
-		if (isLibraryOpened){
+		if (isLibraryOpened){//si c'est un module de la library
 			for (int i = 0; i < libraryModules.size(); i++){
 				if (libraryModules[i]->onTouchDown(x, y)){
 					isLibraryOpened = false;
 					
-					modules.push_back(new Module(libraryModules[i]->getTypeSize(), libraryModules[i]->getTypeMat(), IDmodulesCount++));
-					modules[/*IDmodulesCount-1*/ (int)modules.size()-1]->isSelected = true;
-					touchOrder.push_back(modules.size()-1/*IDmodulesCount-1*/);
+					modules.push_back(new Module(libraryModules[i]->getTypeSize(), libraryModules[i]->getTypeMat(), IDmodulesCount++));//on ajoute le module au wall
+					modules[(int)modules.size()-1]->isSelected = true;
+					touchOrder.push_back(modules.size()-1);
 				}
 			}
 		}	
 		
 		//---- Gestion des boutons
-		for (size_t i=0; i < wallButtons.size(); i++){
+		for (size_t i=0; i < wallButtons.size(); i++)
 				wallButtons[i]->isTouchedDown(x, y);
-		}
 	}
 	
 	
@@ -257,8 +222,7 @@ public:
 				switch (wallButtons[i]->getID()){
 					case 0: //library
 						//on ouvre une fenêtre avec tous les modules
-						/*ofLogNotice() << "number: " << (int)modules.size()-1;
-						if ((int)modules.size()-1 < SCREEN_MAX_NUMBER)*/
+						//if ((int)modules.size()-1 < SCREEN_MAX_NUMBER)//si nombre max d'écrans
 							isLibraryOpened = true;
 						break;
 					case 1://delete
@@ -278,46 +242,24 @@ public:
 			}
 		}
 		
-		for (size_t i=0; i < modules.size(); i++){
-			modules[i]->onTouchUp(x, y);
-		}
+		for (size_t i=0; i < modules.size(); i++) modules[i]->onTouchUp(x, y);
+
 	}
 	
 	void touchMoved(int x, int y){
-		for (size_t i=0; i < modules.size(); i++){
-			modules[i]->onTouchMove(x, y);
-		}
+		for (size_t i=0; i < modules.size(); i++) modules[i]->onTouchMove(x, y);
 	}
 	
 	
 	/****************************Grid**************************/
+	
+	//calcule toutes les lignes à tracer pour la grille
 	void gridSetup(){
-
-		/*for (int i = 1; i <= 6;i++){//verticales
-			gridLines[i-1].set(i*1.7*GRID_RATIO, 0.03*ofGetHeight(), i*1.7*GRID_RATIO, gridSize.getHeight()-0.03*ofGetHeight());
-		}
-		for (int i = 0; i < 7;i++){//horizontales
-			gridLines[i+6].set(0.03*ofGetWidth(), (i+1)*GRID_RATIO, gridSize.getWidth() - 0.06*ofGetWidth(), (i+1)*GRID_RATIO);
-		}*/
-		
-		int decalage = 0;
-		/*for (int i = 0; i < 6;i++){
-			if (i==2 || i==3) decalage = 1;
-			if(i==4 || i==5) decalage = 2;
-			gridLines[i].set((i+4)*1.7*GRID_RATIO-decalage, 0.03*ofGetHeight(), (i+4)*1.7*GRID_RATIO-decalage, gridSize.getHeight()-0.03*ofGetHeight());
-		}
-		for (int i = 0; i < 7;i++){
-			gridLines[i+6].set(gridSize.getX()+0.03*ofGetWidth(), (i+1)*GRID_RATIO, ofGetWidth() - 0.03*ofGetWidth(), (i+1)*GRID_RATIO);
-		}
-		
-		for(int i=0; i<7; i++){<z²²
-			for (int j=0; j<7; j++){
-				gridRepresentation[i][j] = 0;
-			}
-		}*/
-		
+	
+		// /!\aussi dans module --> faut changer les deux
 		bordureX = (((ofGetWidth()-50)/(1.7*GRID_RATIO) - (float)((int)((ofGetWidth()-50)/(1.7*GRID_RATIO))))*1.7*GRID_RATIO + 50) /2; //63;
 		bordureY = (((ofGetHeight()-200.0)/GRID_RATIO - (float)((int)((ofGetHeight()-200)/GRID_RATIO)))*GRID_RATIO +25 /*+GRID_RATIO*/) /2;
+		
 		for (int i = 0; i <13; i++){//verticales
 			gridLines[i].set(bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, 50+bordureY-10, bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, ofGetHeight() - 120 - bordureY);
 		}
@@ -335,29 +277,6 @@ public:
 		}
 	}
 	
-	//fill an array corresponding to the grid with . if the case is empty and # if there is a module in the case.
-	void wallRepresentation(){
-		for(int i=0; i<7; i++){
-			for (int j=0; j<7; j++){
-				gridRepresentation[i][j] = 0;
-			}
-		}
-		for(int i=0; i<modules.size();i++){
-		
-			//gridRepresentation[(int)(modules[i]->locationInGrid.x)][(int)(modules[i]->locationInGrid.y)] = 1;
-			
-			/*if (modules[i]->getType()==2){
-				gridRepresentation[(int)(modules[i]->locationInGrid.x)][(int)(modules[i]->locationInGrid.y)+1]=1;
-				gridRepresentation[(int)(modules[i]->locationInGrid.x)][(int)(modules[i]->locationInGrid.y)+2]=1;
-			} else if (modules[i]->getType()==3){
-				gridRepresentation[(int)(modules[i]->locationInGrid.x)][(int)(modules[i]->locationInGrid.y)+1]=1;
-				gridRepresentation[(int)(modules[i]->locationInGrid.x)+1][(int)(modules[i]->locationInGrid.y)]=1;
-				gridRepresentation[(int)(modules[i]->locationInGrid.x)+1][(int)(modules[i]->locationInGrid.y)+1]=1;
-			}*/
-		}
-	}
-	
-	
 	//-------------------------XML--------------------------------------//
 	
 	void wall2XML(int wallID){
@@ -365,11 +284,11 @@ public:
 	
 	//---------------WORK IN PROGRESS : save several walls -----------------------//
 		/*bool wallFound = false;
-		if (modSettings.load("modules.xml")){
+		if (modSettings.load("walls.xml")){ //si le fichier existe
 			int numTagsWALL = modSettings.getNumTags("WALL");
 			for (int i = 0; i < numTagsWALL; i++){
 	    		modSettings.pushTag("WALL", i);
-	    			if (modSettings.getValue("ID", i) == wallID){
+	    			if (modSettings.getValue("ID", i) == wallID){ //si le wall existe déjà dans le fichier on modifie le wall existant
 				    				wallFound = true;
 				    				ofLogNotice() << "trouvé";
 				    				//on remplace les modifs
@@ -465,12 +384,13 @@ public:
 		//ofSetDataPathRoot("");
 	   	//modSettings.save("/storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml");
 		//modSettings.save("file://192.168.1.17:8000/modules.xml");
-		modSettings.save("modules.xml");*/
+		modSettings.save("walls.xml");*/
 		//---------------------------------------------------------------------
 		
+		//pour l'instant on écrase le fichier à chaque fois
 		modSettings.clear();
 	
-	    lastTagNumber	= modSettings.addTag("WALL");
+	    lastTagNumber= modSettings.addTag("WALL");
 	    
 	    modSettings.pushTag("WALL", 0);
 	    modSettings.setValue("ID", (int)names.size()-1, 0);
@@ -508,13 +428,10 @@ public:
 	        modSettings.popTag();
 	    }
 	    modSettings.popTag();
-		//save at : /storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml
+		
 		
 		//EDDY
-		//ofSetDataPathRoot("");
-	   	//modSettings.save("/storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml");
-		//ofLogNotice() << modSettings.save("file://192.168.1.17:8000/modules.xml");
-		modSettings.save("modules.xml");
+		modSettings.save("walls.xml"); //save at : /storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml
 	}
 	
 	void XML2Wall(int wallID){
@@ -522,16 +439,17 @@ public:
 	    modules.clear();
 	    touchOrder.clear();
 
+		//on enregistre le xml en local
 	    ofFile tempXML;
 	    ofBuffer dataBuffer;
 	    
 	    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
-	    dataBuffer = ofLoadURL("http://192.168.1.13:8000/test2.xml").data;
+	    dataBuffer = ofLoadURL(pathToServer + "test2.xml").data;
 	    ofBufferToFile("temp.xml", dataBuffer);
 	    
+	    //on charge le xml
 	    modSettings.load("temp.xml");
 	    tempXML.remove();
-	    
 		
 	    int numTagsWALL = modSettings.getNumTags("WALL");
 	    
@@ -574,9 +492,10 @@ public:
 	    modSettings.popTag();
 	}
 	
+	//fill names depending on a xml file and end with "create a wall"
 	void getWallListName(){
 		
-		modSettings.load("modules.xml");
+		modSettings.load("walls.xml");
 		
 		names.clear();
 		int numTagsWALL = modSettings.getNumTags("WALL");

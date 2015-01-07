@@ -9,19 +9,16 @@ class Button{
 		char* name;
 		ofRectangle dimensions;
 		int associatedPages;
-		string activName;
-		string passivName;
-		bool isActiv, isTouched, isAvailable;
+		string activName, passivName; //PLAY/PAUSE buttons for example
+		bool isActiv;
+		bool isTouched;
+		bool isAvailable; //not used
+		bool isVisible;
 		int ID;
 		ofTrueTypeFont font;
 		int color;
-		bool isVisible;
-		
-		
 		
 	public:
-	
-	
 	
 	Button(char* name, int ID, int x, int y, int w, int h, int associatedPages, string activName, string passivName, int color = 255): name(name), associatedPages(associatedPages), ID(ID), activName(activName), passivName(passivName), color(color)
 	{
@@ -32,15 +29,11 @@ class Button{
 		isVisible=true;
 		font.loadFont("OpenSans-Regular.ttf", 15);
 	}
-
-	void update() {
-
-	}
 	
 	void draw() {
 		if (isVisible){
 			ofPushStyle();
-			if (isAvailable){
+			//if (isAvailable){
 				if (isTouched) ofFill();
 				else ofNoFill();
 				ofSetColor(color);
@@ -51,11 +44,11 @@ class Button{
 				} else {
 					font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+dimensions.getHeight()/2+font.getLineHeight()/2);
 				}
-			} else {
+			/*} else {
 				ofFill();
 				ofSetColor(125, 50,50);
 				font.drawString(passivName, dimensions.getX() + dimensions.getWidth()/2-font.stringWidth(passivName)/2, dimensions.getY()+font.getLineHeight());
-			}
+			}*/
 			ofPopStyle();
 		}
 	}

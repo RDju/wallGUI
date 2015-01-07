@@ -6,8 +6,8 @@ using namespace std;
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	//init graphics
 	background.loadImage("bckgrimgWhite.png");
-	//background.loadImage("http://192.168.1.14:8000/pict1.jpg");
 	ofEnableAlphaBlending();
 	font.loadFont("OpenSans-Regular.ttf", 15);
 	titleFont.loadFont("open-sansbold-italic.ttf", 20);
@@ -17,35 +17,28 @@ void ofApp::setup(){
 	slide = 0;
 	buttonNumber=-1;
 	isButtonActioned = false;
-	IDbuttonsCount = 20;
-	IDmyChannelsCount = 50;
+	IDbuttonsCount = 20;//the first are for the menu buttons
+	IDmyChannelsCount = 50;//the first are for buttons
 	wantToSaveAutomix = false;
-
-	//channelSelected = none;
-	isTempChannelCreated = false;
+	isTempChannelCreated = false;//for automix
 	
 	appWall = new Wall();
 	appWall->setup();
 	
-	//appWall->XML2Wall(0);
-	
 	appMenu = new Menu();
 	appMenu->setup(appWall->names);
 	
-	loadChannelXml();
+	loadChannelXml(); //Create demo channels available from xml
 	
-	for (int i=0; i<demoChannelNumber;i++){
-		demoChannels.push_back(new Channel(i, modSettings));
-		demoChannels[i]->playButton->setID(IDbuttonsCount++);
-	}
+				//Channels demo Home page (not used any more)
+				/*string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel", "Picasso", "Pantera", "Bisounours", "Lapin", "Cthulhu", "Coquillages"};
+				for (int i=0; i<12;i++){
+					demoChannels.push_back(new Channel("channel"+ofToString(i)+".png", channelNames[i], "user", rand()%5, i));
+					demoChannels[i]->playButton->setID(IDbuttonsCount++);
+					
+				}*/
 	
-	//Channels demo Home page
-	string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel", "Picasso", "Pantera", "Bisounours", "Lapin", "Cthulhu", "Coquillages"};
-	/*for (int i=0; i<12;i++){
-		demoChannels.push_back(new Channel("channel"+ofToString(i)+".png", channelNames[i], "user", rand()%5, i));
-		demoChannels[i]->playButton->setID(IDbuttonsCount++);
-		
-	}*/
+	//Example of personnal channels... TODO: Replace by xml
 	string myChannelNames[] = {"Réseaux", "Vacances", "Bouffe"};
 	for (int i=0; i<3;i++){
 		myChannels.push_back(new Channel("channel"+ofToString(i)+".png", myChannelNames[i], "user", rand()%5, i+6));
@@ -56,6 +49,7 @@ void ofApp::setup(){
 	ofxOscMessage m;
 	m.setAddress( "/INIT");
 	
+	//fill an array of osc senders for each wall
 	//TODO: make it work
 	/*for (int i = 0; i < WALLNUMBER; i++){
 	 	ofxOscSender tempSender;
@@ -64,6 +58,8 @@ void ofApp::setup(){
 		senders[i].setup(hosts[i], PORT);
 		senders[i].sendMessage( m );
 	}*/
+	
+	//only one sender is created for the moment
 	sender.setup(hosts[0], PORT);
 	sender.sendMessage( m );
 	
@@ -82,10 +78,10 @@ void ofApp::setup(){
 	
 	//Automix validation
 	GUIbuttons.push_back(new Button("back", 16, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "BACK", "BACK", 40));
-	
-	//Save wall
 
-	//Settings GUI
+
+	//**************Settings GUI**************//
+	
 	ofxUIColor cb = ofxUIColor(0, 0, 0, 125); //Background 
 	ofxUIColor cbgui = ofxUIColor(0, 0, 0, 0);
 	ofxUIColor cb2 = ofxUIColor(40, 40, 40, 150); //BG liste déroulante
@@ -101,7 +97,6 @@ void ofApp::setup(){
 	
 	guiChannelSettings->setFont("OpenSans-Light.ttf");
 	guiChannelSettings->setWidgetFontSize(OFX_UI_FONT_LARGE);
-	
 	
 	string slidersName[] = {"imgVidRate", "transitionSpeed", "colorHarmony", "sensor", "none"};
 	for (int i = 0; i < 5; i++){
@@ -125,15 +120,16 @@ void ofApp::setup(){
 	
 	guiChannelSettings->setUIColors( cb, cbgui, coh, cf, cfh, cp, cpo );
 	guiChannelSettings->setVisible(false);
-
 }
 
+//Create a new channel for each line available in the channels.xml file
 void ofApp::loadChannelXml(){
+			
 			ofFile tempXML;
 		    ofBuffer dataBuffer;
 		    
 		    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
-		    dataBuffer = ofLoadURL("http://192.168.1.13:8000/geo.xml").data;
+		    dataBuffer = ofLoadURL(pathToServer + "wallChannels/channels.xml").data;
 		    ofBufferToFile("temp.xml", dataBuffer);
 		    
 		    modSettings.load("temp.xml");
@@ -141,61 +137,53 @@ void ofApp::loadChannelXml(){
 		    
 		    modSettings.pushTag("channels");
 		    demoChannelNumber =  modSettings.getNumTags("channel");
+		    for (int i = 0; i < demoChannelNumber; i++) {
+		    	demoChannels.push_back(new Channel(i, pathToServer + modSettings.getValue("channel", "error", i)));
+				demoChannels[i]->playButton->setID(IDbuttonsCount++);
+		    }
 		    modSettings.popTag();
-
 }
 
-void ofApp::moodEvent(ofxUIEventArgs &e){
-	string name = e.widget->getName();
-	if(name == "Select your mood")
-	{
-		ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
-		vector<ofxUIWidget *> &selected = ddlist->getSelected(); 
-	}
-}
+
 
 //--------------------------------------------------------------
 void ofApp::update() {
 
 	appMenu->update(wallSelected);
+	OSCcatch();
 	
-	if (appMenu->wallListAction == -1) {
+	if (appMenu->wallListAction == -1) {//click on "CREATE A NEW WALL"
 		pageLevel = WALLCREATION_PAGE;
 		appWall->modules.clear();
 		appWall->touchOrder.clear();
 		appWall->IDmodulesCount = 0;
-	} else if (appMenu->wallListAction != -2 && pageLevel == WALLCREATION_PAGE){
-		appWall->XML2Wall(wallSelected);
+	} else if (appMenu->wallListAction != -2 && pageLevel == WALLCREATION_PAGE){ //click on a wall on the list when on the Wall creation page
+		appWall->XML2Wall(wallSelected);//change the wall displayed
 	}
-	//else if (appMenu->wallListAction != -2) wallSelected = appMenu->wallListAction;
-	appMenu->wallListAction = -2;
+	appMenu->wallListAction = -2;//do nothing
 	
+	//???
 	if (wallSelected == appMenu->wallList->toggles.size()-1 && pageLevel != WALLCREATION_PAGE && appMenu->wallList->getSelected().size() > 0){
 		appMenu->wallList->clearSelected();
 	}
 	
+	//-------desactivate unwanted objects------------
 	if (pageLevel != CHANNELSELECT_PAGE){
 		for (int i = 0; i < demoChannels.size(); i++){
 			demoChannels[i]->playButton->setPos(-1, -1);
 		}
 	}
-	
 	if (pageLevel != AUTOMIX_PAGE && isTempChannelCreated){
 		tempChannel->guiTitle->setVisible(false);
 		tempChannel->guiTags->setVisible(false);
 		tempChannel->guiDescriptionEdit->setVisible(false);
 		isTempChannelCreated = false;
 	}	
-	
 	if (appWall->newWallCreated){
 		appWall->newWallCreated = false;
 		appMenu->updateListWall(appWall->names);
 		appMenu->wallList->setSelected((int)appWall->names.size()-2);
 	}
-	
-	
-	OSCcatch();
-	
 	//On cache le canevas de la description des channels
 	if (pageLevel!=CHANNELDISPLAY_PAGE){
     	for (size_t i=0; i < demoChannels.size(); i++)
@@ -209,12 +197,14 @@ void ofApp::update() {
     	guiChannelSettings->setVisible(false);
     	isTempChannelCreated = false;
     }
+	//------------------------------------------------
 	
-    //Actions liées aux clic sur des boutons
+	
+    //Click on buttons
     if (isButtonActioned){
     	ofxOscMessage m;
     	switch(buttonNumber){
-    		case 0:
+    		case 0: //LOG OUT
     			m.setAddress( "/EXIT");
 				sender.sendMessage( m );
 	
@@ -222,18 +212,22 @@ void ofApp::update() {
 				std::exit(EXIT_SUCCESS);
 				
     			break;
-    		case WALLCREATION_PAGE:
+    			
+    		case WALLCREATION_PAGE://click on "GO" --> display the wall selected
     			pageLevel=buttonNumber;
     			if (wallSelected != -1 && wallSelected != appMenu->wallList->toggles.size() -1)
     				appWall->XML2Wall(wallSelected);
     			break;
+    			
     		case HOME_PAGE:
     		case CHANNELSELECT_PAGE:
     		case SETTINGS_PAGE:
     			pageLevel=buttonNumber;
     			break;
     			
-    		case AUTOMIX_PAGE:
+    		case AUTOMIX_PAGE: //"GO" to automix
+    		
+    			//Send the tag entered by the user
     			m.setAddress("/AUTOMIX/TAG");
     			m.addStringArg(appMenu->automixTextInput->getTextString());
 	        	sender.sendMessage( m );
@@ -241,17 +235,17 @@ void ofApp::update() {
     			pageLevel=buttonNumber;
     			
     			if (appMenu->automixTextInput->isClicked()) appMenu->automixTextInput->unClick();
-    			if (isTempChannelCreated) tempChannel->tagsTextInput->setTextString(appMenu->automixTextInput->getTextString());
     			
-    			if(!isTempChannelCreated){
+    			
+    			if(!isTempChannelCreated){ //create a new channel
 	    			tempChannel = new Channel(appMenu->automixTextInput->getTextString());
 	    			isTempChannelCreated = true;
-	    		} else {
+	    		} else { //change the tags with the new ones
 	    			tempChannel->tagsTextInput->setTextString(appMenu->automixTextInput->getTextString());
 	    			tempChannel->tagsTextInput->setVisible(true);
 	    		}
 	    		
-	    		//appMenu->getButtons()[AUTOMIX_PAGE]->setIsTouched(false);//pour revenir à l'état normal
+	    		//appMenu->getButtons()[AUTOMIX_PAGE]->setIsTouched(false);//pour revenir à l'état normal (problème d'affichage de l'effet "cliqué" sur le bouton)
     			break;
     			
     		case SEARCH_PAGE:
@@ -259,7 +253,7 @@ void ofApp::update() {
     			pageLevel=CHANNELSELECT_PAGE;
     			break;
     			
-    		case 10://Back button 
+    		case 10://Back button on channel page
     			if(previousPageLevel == AUTOMIX_PAGE) pageLevel = HOME_PAGE;
     			else pageLevel=previousPageLevel;
     			break;
@@ -270,22 +264,21 @@ void ofApp::update() {
 	        	sender.sendMessage( m );
     			break;
     			
-    		case 12: 
+    		case 12: //preview button in automix
     			//preview
     			break;
-    		case 13: //save
+    		case 13: //save button in automix
     			if (!wantToSaveAutomix)
     				wantToSaveAutomix=true;
     			else {
     				wantToSaveAutomix = false; 
-    				
     				isTempChannelCreated = false;
+    				
     				tempChannel->guiTags->setVisible(false);
 					tempChannel->guiDescriptionEdit->setVisible(false);
 					tempChannel->guiTitle->setVisible(false);
 					
-					
-					//save in myChannels
+					//save locally in myChannels (don't survive a reboot)
 					tempChannel->ID = myChannels.size();
 					tempChannel->saveChannel(IDmyChannelsCount++);
 					myChannels.push_back(tempChannel);
@@ -300,30 +293,30 @@ void ofApp::update() {
     			}
     			break;
     			
-    		case 14:
-    			//random
+    		case 14: //random button from automix
+    			
     			for (int i = 0; i < 5; i++){
     				settingsSliders[i]->setValue((rand()%4) * 25);
     			}
     			moodList->setSelected((rand()%(moodList->toggles.size()-1))+1);
     			break;
     			
-    		case 15:
-    			//play automix
+    		case 15: //play automix
+    			
     			m.setAddress( "/AUTOMIX/PLAY");
-    			m.addStringArg(/*appMenu->automixTextInput->getTextString()*/tempChannel->tagsString);
+    			m.addStringArg(tempChannel->tagsString);
     			for (int i = 0; i < 4; i++){
     				m.addIntArg((int32_t)settingsSliders[i]->getValue());
     			}
-    			if (moodList->getSelectedIndeces().size() > 0)
-    				m.addIntArg((int32_t)moodList->getSelectedIndeces()[0]);
-    			else m.addIntArg(-1);
+    			if (moodList->getSelectedIndeces().size() > 0) m.addIntArg((int32_t)moodList->getSelectedIndeces()[0]);//mood number
+    			else m.addIntArg(-1); //no mood
 	        	sender.sendMessage( m );
     			break;
     		case 16: //back automix
     			wantToSaveAutomix = false;
     			break;
     	}
+    	//channels display buttons
     	if ((buttonNumber >=20 && buttonNumber <=40) || (buttonNumber >=50) ) {
     		pageLevel = CHANNELDISPLAY_PAGE;
     	}
@@ -335,20 +328,20 @@ void ofApp::update() {
     switch(pageLevel){
     	case AUTOMIX_PAGE:
     		
-    		if (appMenu->automixTextInput->isClicked())
-    			tempChannel->tagsTextInput->setVisible(false);
-    		if (!wantToSaveAutomix){
-	    		guiChannelSettings->setVisible(true);
-	    		
-	    	} else {
-	    		guiChannelSettings->setVisible(false);
-	    	}
+    		if (appMenu->automixTextInput->isClicked()) tempChannel->tagsTextInput->setVisible(false);//pour éviter une supperposition des deux (c'est moche mais c'est fonctionnel)
+    		if (!wantToSaveAutomix) guiChannelSettings->setVisible(true);
+	    	else guiChannelSettings->setVisible(false);
 	    	
     		break;
+    		
     	case WALLCREATION_PAGE:
     		appWall->update();
+    		break;
+    		
     	case HOME_PAGE:
     		
+    		//Gestion dégueux des glissements des 6 chaines de la page d'accueil
+    		//TODO: remake with infinity of pages depending on the channels number
     		if (slide == 1){
     			if(demoChannels[6]->tempPosition.x > 75 ){
 	    			for (int i = 0; i < demoChannels.size(); i++){
@@ -381,7 +374,9 @@ void ofApp::update() {
     			}
     		}
     		break;
+    		
     	case CHANNELSELECT_PAGE:
+    		//display 4 channels preview under "search"
     		for(int i=0; i<demoChannelNumber; i++){
     			if (i < 4) {
 	    			if (i%2==0) demoChannels[i]->tempPosition.set((i/2 +1)/3.0*ofGetWidth()+50, HEIGHT_BUTTONS + 50 +titleFont.getSize());
@@ -407,11 +402,11 @@ void ofApp::draw() {
 	    			ofPushStyle();
 		    			//preview de channels
 		    			
+		    			//display preview channels
 		    			demoChannels[i]->drawPreview();
-		    			/*if (i%2==0) demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50, 100);
-						else demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50, 3.0/15*ofGetHeight()+1.0/3*ofGetHeight());*/
-						
-						if (slide == 0){
+		    			
+		    			//flèches droites et gauche pour le déplcement dans les pages de channels preview
+						if (slide == 0 && demoChannelNumber > 6 ){
 							ofSetColor(255);
 							ofFill();
 							ofCircle(ofGetWidth()-40, ofGetHeight()/2, 30 );
@@ -433,20 +428,6 @@ void ofApp::draw() {
 					ofPopStyle();
 	    			ofPopMatrix();
 	    		}
-    		/*} else {
-    			int boucle = 0;
-    			while(demoChannels[6]->tempPosition.x > 25){
-					for (int i = 0; i < demoChannels.size(); i ++ ){
-						//demoChannels[i]->tempPosition.set();
-						//demoChannels[i]->drawPreview(demoChannels[i]->tempPosition.x - 10, demoChannels[i]->tempPosition.y);
-						
-						if (i%2==0) demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50 - i * 10, 100);
-						else demoChannels[i]->drawPreview((i/2)/3.0*ofGetWidth()+50 - i * 10, 3.0/15*ofGetHeight()+1.0/3*ofGetHeight());
-					}
-					ofSleepMillis(10);
-					boucle ++;
-				}
-			}*/
     		break;
     		
     	case CHANNELSELECT_PAGE:
@@ -491,7 +472,6 @@ void ofApp::draw() {
     		
     	case WALLCREATION_PAGE:
     		
-    		
     		if (!appWall->isLibraryOpened)
     			appWall->draw();
     		else appWall->drawLibrary();
@@ -505,13 +485,6 @@ void ofApp::draw() {
     		break;
     		
     }
-    
-    /*for (size_t i=0; i < GUIbuttons.size(); i++){
-    	if (GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1){
-    		GUIbuttons[i]->draw();
-    	}
-    }*/
-    
     appMenu->draw();
 }
 
@@ -526,16 +499,30 @@ void ofApp::OSCcatch(){
 		if(rm.getAddress() == "/SNAPSHOT"){
 			tempChannel->automixImageFound = true;
 			tempChannel->channelImage.loadImage(rm.getArgAsString(0));
+			tempChannel->channelImage.resize(CHANNEL_IMAGE_WIDTH, CHANNEL_IMAGE_HEIGHT);
+			tempChannel->previewImage.loadImage(rm.getArgAsString(0));
+			tempChannel->previewImage.resize(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
 			tempChannel->imageUrl = rm.getArgAsString(0);
 			ofLogNotice() << "URL : " << rm.getArgAsString(0);
 		}
 	}	
 }
 
-//--------------------------------------------------------------
-void ofApp::touchDown(int x, int y, int id){//On met le doigt
+//-----------------------------------------------------------------------
+//Events for the mood list from the automix
+void ofApp::moodEvent(ofxUIEventArgs &e){
+	string name = e.widget->getName();
+	if(name == "Select your mood")
+	{
+		ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
+		vector<ofxUIWidget *> &selected = ddlist->getSelected(); 
+	}
+}
 
-		// Regarde si des boutons ont été sélectionnés
+//--------------------------------------------------------------
+void ofApp::touchDown(int x, int y, int id){
+
+		//--------- Regarde si des boutons ont été sélectionnés -----------
 		
 		//dans le menu
 		for (size_t i=0; i < appMenu->getButtons().size(); i++){
@@ -546,10 +533,8 @@ void ofApp::touchDown(int x, int y, int id){//On met le doigt
 				appMenu->getButtons()[AUTOMIX_PAGE]->isTouchedUp(x, y);//pour revenir à l'état normal
 			}
 		}
-		
-		
-		
-		//Channel buttons
+
+		//Channel play buttons
 		for (int i=0; i < demoChannels.size(); i++){
 			demoChannels[i]->playButton->isTouchedDown(x, y);
 		}
@@ -571,7 +556,7 @@ void ofApp::touchDown(int x, int y, int id){//On met le doigt
 		if (pageLevel == WALLCREATION_PAGE){
 			appWall->touchDown(x, y);
 		} else if (pageLevel == HOME_PAGE){
-			if (slide == 0){
+			if (slide == 0 && demoChannelNumber>6){
 				if (x > ofGetWidth() - 40 && y > ofGetHeight() / 2 - 15 && y < ofGetHeight() / 2 +15){
 					slide = 1;
 				}
@@ -583,20 +568,15 @@ void ofApp::touchDown(int x, int y, int id){//On met le doigt
 		}
 }
 
-//--------------------------------------------------------------
-void ofApp::touchMoved(int x, int y, int id){
-	if (pageLevel == WALLCREATION_PAGE){
-		appWall->touchMoved(x, y);
-	}
-}
+
 
 //--------------------------------------------------------------
-void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
+void ofApp::touchUp(int x, int y, int id){
 	
 	
-		//Regarde si un bouton a été actionné et récupère l'ID si c'est le cas
+		//------  Regarde si un bouton a été actionné et récupère l'ID si c'est le cas --------------
 		
-		//Menu buttons
+		//in the menu
 		for (size_t i=0; i < appMenu->getButtons().size(); i++){
 			if (appMenu->getButtons()[i]->isTouchedUp(x, y)){
 				buttonNumber = appMenu->getButtons()[i]->getID();
@@ -605,7 +585,7 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 			}
 		}
 		
-		//Channel buttons
+		//On channel play button
 		for (int i=0; i < demoChannels.size(); i++){
 			if (pageLevel == CHANNELSELECT_PAGE && demoChannels[i]->playButton->isTouchedUp(x, y) && y > 50 && x > 0){
 				buttonNumber = demoChannels[i]->playButton->getID();
@@ -625,7 +605,7 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 			}
 		}
 				
-		//global buttons
+		//on global buttons
 		for (size_t i=0; i < GUIbuttons.size(); i++){
 			if ((GUIbuttons[i]->getAssociatedPages() == pageLevel || GUIbuttons[i]->getAssociatedPages()==-1 )&& GUIbuttons[i]->isTouchedUp(x, y)){
 				buttonNumber = GUIbuttons[i]->getID();
@@ -643,21 +623,26 @@ void ofApp::touchUp(int x, int y, int id){//On enlève le doigt
 				}
 			}
 		}
-		
-	if (!appMenu->wallList->isOpen() && !appMenu->automixTextInput->isClicked() && !appMenu->searchTextInput->isClicked()){
-		
-		
-		if (pageLevel == HOME_PAGE || pageLevel == CHANNELSELECT_PAGE){//vérifie le clic sur un channel
-			for (size_t i = 0; i < demoChannels.size(); i++){
-				if (demoChannels[i]->isTouched(x, y)){
-					channelSelected = demoChannels[i];
-					previousPageLevel = pageLevel;
-					pageLevel = CHANNELDISPLAY_PAGE;
+	
+		if (!appMenu->wallList->isOpen() && !appMenu->automixTextInput->isClicked() && !appMenu->searchTextInput->isClicked()){//bloque les boutons si menu déroulant du menu ouvert ou bouton automix activé
+			if (pageLevel == HOME_PAGE || pageLevel == CHANNELSELECT_PAGE){//vérifie le clic sur un channel
+				for (size_t i = 0; i < demoChannels.size(); i++){
+					if (demoChannels[i]->isTouched(x, y)){
+						channelSelected = demoChannels[i];
+						previousPageLevel = pageLevel;
+						pageLevel = CHANNELDISPLAY_PAGE;
+					}
 				}
+			} else if (pageLevel == WALLCREATION_PAGE){//Vérifie si des modules sont touchés
+				appWall->touchUp(x, y);
 			}
-		} else if (pageLevel == WALLCREATION_PAGE){//Vérifie si des modules sont touchés
-			appWall->touchUp(x, y);
 		}
+}
+
+//--------------------------------------------------------------
+void ofApp::touchMoved(int x, int y, int id){
+	if (pageLevel == WALLCREATION_PAGE){
+		appWall->touchMoved(x, y);
 	}
 }
 
@@ -682,7 +667,6 @@ void ofApp::touchDoubleTap(int x, int y, int id){
 //--------------------------------------------------------------
 
 void ofApp::keyPressed(int key){
-	
 	switch(key){
 		case 10://return
 			buttonNumber = AUTOMIX_PAGE;
@@ -694,11 +678,7 @@ void ofApp::keyPressed(int key){
 void ofApp::exit()
 {
 }
-
-
 //--------------------------------------------------------------
-
-
 void ofApp::keyReleased(int key){}
 void ofApp::windowResized(int w, int h){}
 void ofApp::touchCancelled(int x, int y, int id){}

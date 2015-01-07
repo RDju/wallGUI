@@ -21,9 +21,6 @@ class Menu{
 			menuButtons.push_back(new Button("SETTINGS", SETTINGS_PAGE, 18.0/28*ofGetWidth()-50, 0, 3.0/28*ofGetWidth(), HEIGHT_BUTTONS , -1, "SETTINGS", "SETTINGS"));
 			
 			menuButtons.push_back(new Button("MY CHANNELS", CHANNELSELECT_PAGE, 0, ofGetHeight()-HEIGHT_BUTTONS, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS , -1, "MY CHANNELS", "MY CHANNELS"));
-			//GUIbuttons.push_back(new Button("Automix", AUTOMIX_PAGE, 1.0/4*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "What @ or # is on your mind ?", "What @ or # is on your mind ?"));
-			//GUIbuttons.push_back(new Button("Search", SEARCH_PAGE, 5.0/8*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS, 3.0/8*ofGetWidth(), HEIGHT_BUTTONS , -1, "Search a # or a @", "Search a # or a @"));
-			
 			menuButtons.push_back(new Button("Automix go", AUTOMIX_PAGE, 9.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10, 1.0/16*ofGetWidth()-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
 			menuButtons.push_back(new Button("Search go", SEARCH_PAGE, 15.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10, 1.0/16*ofGetWidth()-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
 			menuButtons.push_back(new Button("Wall go", WALLCREATION_PAGE, 15.0/16*ofGetWidth()+10, 10, 1.0/16*ofGetWidth()-10-10, HEIGHT_BUTTONS-20 , -1, "GO", "GO"));
@@ -81,6 +78,8 @@ class Menu{
 		}
 		
 		void update(int& wallSelected){
+			
+			//Click on automix
 			if (automixTextInput->isClicked()){
 				guiAuto->setPosition(30, ofGetHeight()/2+20);
 				menuButtons[AUTOMIX_PAGE]->setPos(30+2.0/8*ofGetWidth()-20, ofGetHeight()/2+20);
@@ -89,6 +88,7 @@ class Menu{
 				menuButtons[AUTOMIX_PAGE]->setPos(9.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10);
 			}
 			
+			//click on search
 			if (searchTextInput->isClicked()){
 				guiSearch->setPosition(30, ofGetHeight()/2+20);
 				menuButtons[SEARCH_PAGE]->setPos(30+2.0/8*ofGetWidth()-20, ofGetHeight()/2+20);
@@ -97,6 +97,7 @@ class Menu{
 				menuButtons[SEARCH_PAGE]->setPos(15.0/16*ofGetWidth(), ofGetHeight()-HEIGHT_BUTTONS+10);
 			}
 			
+			//Display the "GO" button of the wall list if a wall is selected
 			if (wallList->getSelectedIndeces().size() > 0){
 				wallSelected = wallList->getSelectedIndeces()[0];
 				if (wallSelected != -1 && wallSelected != wallList->toggles.size() -1)
@@ -104,6 +105,7 @@ class Menu{
 				else menuButtons[6]->setVisible(false);
 			}
 		}
+		
 		
 		void updateListWall(vector<string> names){
 			wallList->clearToggles();
@@ -140,14 +142,11 @@ class Menu{
 			    
 		    ofPopStyle();
 		    
-		    
-		    	
-		    
 		    for (size_t i=0; i < menuButtons.size(); i++){
 		    	menuButtons[i]->draw();
 		    }
 		    
-		    //on passe le fond en noir
+		    //on passe le fond en noir si un textInput est activé
 		    if (automixTextInput->isClicked() || searchTextInput->isClicked()){
 		    	ofPushStyle();
 		    		ofSetColor(36, 37, 38, 200);
@@ -162,11 +161,11 @@ class Menu{
 		    
 		}
 		
+		//Events relié au menu déroulant wall
 		void menuEvent(ofxUIEventArgs &e){
 		    string name = e.widget->getName();
 		    if(name == "WALLS" && !((ofxUIDropDownList *)e.widget)->isOpen())
 		    {
-		    	
 		        ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
 		        vector<ofxUIWidget *> &selected = ddlist->getSelected(); 
 		        
