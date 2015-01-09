@@ -2,7 +2,7 @@
 #include <string>
 #include "ofxUI.h"
 
-#define CHANNEL_IMAGE_WIDTH (ofGetWidth() - 3.0*10.0/100*ofGetWidth())/3.0
+#define CHANNEL_IMAGE_WIDTH (ofGetWidth() - 3.0*10.0/100*ofGetWidth())/3.0 +20
 #define CHANNEL_IMAGE_HEIGHT (ofGetHeight() - HEIGHT_BUTTONS*2 - 2.0*1.0/9*ofGetHeight() - 1.0/15 * ofGetHeight())/2.0
 
 #define PREVIEW_IMAGE_WIDTH 2.0/5*ofGetWidth() 

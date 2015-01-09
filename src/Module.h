@@ -32,7 +32,7 @@ class Module{
 		
 		bool isTouched;
 		bool isDeleted;
-		bool isSelected;
+		
 		bool isWellPlaced;
 		
 		ofColor color;
@@ -44,7 +44,7 @@ class Module{
 		
 	
 	public:
-		
+		bool isSelected;
 		
 	
 	Module(int typeSize, int typeMat, int ID): typeSize(typeSize), ID(ID), typeMat(typeMat)
@@ -177,10 +177,11 @@ class Module{
 	
 	void onTouchMove(int x, int y){
 		if (ID != -1){//library modules don't move
-			if ( x-touch.x > bordureX && x+(size.x-touch.x) < ofGetWidth()-bordureX && y-touch.y > bordureY+50 && y+(size.y-touch.y) < ofGetHeight()-150){ 
+			if ( x-touch.x > bordureX && x+(size.x-touch.x) < ofGetWidth()-bordureX && y-touch.y > bordureY+50 && y+(size.y-touch.y) < ofGetHeight()-100){ 
 			   if (isTouched) {
 			   		//déplacement de case en case et non en continue
 			   		//modifier les 50 pour donner plus ou moins de marge pour le déplacement
+			   		
 			   		if ( (int)abs(x-touch.x - bordureX) % (int)(1.7*GRID_RATIO) < 50 && (int)abs(y - touch.y - bordureY - 50) % GRID_RATIO < 50 ){
 			   			pos.set(x-touch.x - ((int)(x-touch.x - bordureX) % int(1.7*GRID_RATIO)), (y-touch.y) - ((int)(y-touch.y - bordureY - 50) % GRID_RATIO));
 			   			getPosInGrid();

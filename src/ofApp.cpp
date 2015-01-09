@@ -23,7 +23,7 @@ void ofApp::setup(){
 	isTempChannelCreated = false;//for automix
 	
 	appWall = new Wall();
-	appWall->setup();
+	appWall->setup(pathToServer);
 	
 	appMenu = new Menu();
 	appMenu->setup(appWall->names);
@@ -149,7 +149,7 @@ void ofApp::loadChannelXml(){
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	appMenu->update(wallSelected);
+	appMenu->update(wallSelected, pageLevel);
 	OSCcatch();
 	
 	if (appMenu->wallListAction == -1) {//click on "CREATE A NEW WALL"
@@ -158,11 +158,11 @@ void ofApp::update() {
 		appWall->touchOrder.clear();
 		appWall->IDmodulesCount = 0;
 	} else if (appMenu->wallListAction != -2 && pageLevel == WALLCREATION_PAGE){ //click on a wall on the list when on the Wall creation page
-		appWall->XML2Wall(wallSelected);//change the wall displayed
+		appWall->XML2Wall(wallSelected, pathToServer);//change the wall displayed
 	}
 	appMenu->wallListAction = -2;//do nothing
 	
-	//???
+	//Si on annule la création de wall (on retourne à l'accueil par exemple), ça remet "walls" par défaut (aucun wall sélectionné)
 	if (wallSelected == appMenu->wallList->toggles.size()-1 && pageLevel != WALLCREATION_PAGE && appMenu->wallList->getSelected().size() > 0){
 		appMenu->wallList->clearSelected();
 	}
@@ -171,6 +171,11 @@ void ofApp::update() {
 	if (pageLevel != CHANNELSELECT_PAGE){
 		for (int i = 0; i < demoChannels.size(); i++){
 			demoChannels[i]->playButton->setPos(-1, -1);
+		}
+	}
+	if (pageLevel != CHANNELSELECT_PAGE){
+		for (int i = 0; i < myChannels.size(); i++){
+			myChannels[i]->playButton->setPos(-1, -1);
 		}
 	}
 	if (pageLevel != AUTOMIX_PAGE && isTempChannelCreated){
@@ -182,7 +187,9 @@ void ofApp::update() {
 	if (appWall->newWallCreated){
 		appWall->newWallCreated = false;
 		appMenu->updateListWall(appWall->names);
-		appMenu->wallList->setSelected((int)appWall->names.size()-2);
+		if (wallSelected == -1)
+			appMenu->wallList->setSelected((int)appWall->names.size()-2);
+		else appMenu->wallList->setSelected(wallSelected);
 	}
 	//On cache le canevas de la description des channels
 	if (pageLevel!=CHANNELDISPLAY_PAGE){
@@ -216,13 +223,14 @@ void ofApp::update() {
     		case WALLCREATION_PAGE://click on "GO" --> display the wall selected
     			pageLevel=buttonNumber;
     			if (wallSelected != -1 && wallSelected != appMenu->wallList->toggles.size() -1)
-    				appWall->XML2Wall(wallSelected);
+    				appWall->XML2Wall(wallSelected, pathToServer);
     			break;
     			
     		case HOME_PAGE:
     		case CHANNELSELECT_PAGE:
     		case SETTINGS_PAGE:
     			pageLevel=buttonNumber;
+    			
     			break;
     			
     		case AUTOMIX_PAGE: //"GO" to automix
@@ -246,6 +254,7 @@ void ofApp::update() {
 	    		}
 	    		
 	    		//appMenu->getButtons()[AUTOMIX_PAGE]->setIsTouched(false);//pour revenir à l'état normal (problème d'affichage de l'effet "cliqué" sur le bouton)
+	    		appMenu->automixTextInput->setTextString("Automix");
     			break;
     			
     		case SEARCH_PAGE:
@@ -322,7 +331,7 @@ void ofApp::update() {
     	}
     }
     isButtonActioned = false;
-    appMenu->update(wallSelected);
+    appMenu->update(wallSelected, pageLevel);
     
     
     switch(pageLevel){
@@ -335,7 +344,7 @@ void ofApp::update() {
     		break;
     		
     	case WALLCREATION_PAGE:
-    		appWall->update();
+    		appWall->update(wallSelected);
     		break;
     		
     	case HOME_PAGE:
@@ -539,9 +548,9 @@ void ofApp::touchDown(int x, int y, int id){
 			demoChannels[i]->playButton->isTouchedDown(x, y);
 		}
 		
-		for (int i=0; i < myChannels.size(); i++){
+		/*for (int i=0; i < myChannels.size(); i++){
 			myChannels[i]->playButton->isTouchedDown(x, y);
-		}
+		}*/
 		
 		//globaux
 		for (size_t i=0; i < GUIbuttons.size(); i++){
@@ -596,7 +605,7 @@ void ofApp::touchUp(int x, int y, int id){
 			}
 		}
 		for (int i=0; i < myChannels.size(); i++){
-			if (myChannels[i]->playButton->isTouchedUp(x, y)){
+			if (myChannels[i]->playButton->isTouchedUp(x, y) && myChannels[i]->playButton->getPos().x != -1 && myChannels[i]->playButton->getPos().x != 0){
 				buttonNumber = myChannels[i]->playButton->getID();
 				channelSelected = myChannels[i];
 				isButtonActioned = true;
@@ -616,13 +625,15 @@ void ofApp::touchUp(int x, int y, int id){
 		
 		//Rend inactif tous les boutons autre que le nouvel actif
 		//TODO: plus d'actualité
-		if (isButtonActioned){
+		//rendre inactif les boutons play/pause uniquement, uniquement si un autre play/pause est activé
+	
+		/*if (isButtonActioned){
 			for(size_t i=0; i < GUIbuttons.size(); i++){
 				if (buttonNumber != GUIbuttons[i]->getID()){
 					GUIbuttons[i]->setIsActiv(false);
 				}
 			}
-		}
+		}*/
 	
 		if (!appMenu->wallList->isOpen() && !appMenu->automixTextInput->isClicked() && !appMenu->searchTextInput->isClicked()){//bloque les boutons si menu déroulant du menu ouvert ou bouton automix activé
 			if (pageLevel == HOME_PAGE || pageLevel == CHANNELSELECT_PAGE){//vérifie le clic sur un channel
@@ -634,7 +645,7 @@ void ofApp::touchUp(int x, int y, int id){
 					}
 				}
 			} else if (pageLevel == WALLCREATION_PAGE){//Vérifie si des modules sont touchés
-				appWall->touchUp(x, y);
+				appWall->touchUp(x, y, wallSelected);
 			}
 		}
 }
@@ -671,6 +682,7 @@ void ofApp::keyPressed(int key){
 		case 10://return
 			buttonNumber = AUTOMIX_PAGE;
 			isButtonActioned = true;
+			
 			break;
 	}
 }

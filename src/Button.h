@@ -106,6 +106,9 @@ class Button{
 	void setID(int ID){
 		this->ID = ID;
 	}
+	ofPoint getPos(){
+		return ofPoint(dimensions.x, dimensions.y);
+	}
 	int getAssociatedPages(){
 		return associatedPages;
 	}

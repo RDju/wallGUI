@@ -41,7 +41,7 @@ public:
 	
 	Wall(){}
 	
-	void setup(){
+	void setup(string pathToServer){
 		IDmodulesCount = 0;
 		isLibraryOpened = false;
 		newWallCreated = false;
@@ -59,6 +59,16 @@ public:
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j <3; j++)
 				libraryModules.push_back(new Module(j, i, -1));
+				
+		//on part d'une base de walls
+	    ofFile tempXML;
+	    ofBuffer dataBuffer; 
+	    
+	    tempXML.open(ofToDataPath("walls.xml"), ofFile::ReadWrite, false);
+	    tempXML.clear();
+	    dataBuffer = ofLoadURL(pathToServer + "walls.xml").data;
+	    ofBufferToFile("walls.xml", dataBuffer);
+	    tempXML.close();
 		
 		//fill the walls names depending on a xml file
 		getWallListName();
@@ -76,13 +86,17 @@ public:
 		saveWallGUI->setFont("open-sansbold-italic.ttf");
 		saveWallGUI->setWidgetFontSize(OFX_UI_FONT_LARGE);
 		saveWallGUI->setUIColors( cb2, cb, coh, cf, cfh, cp, cpo );
-		saveWallTextInput = saveWallGUI->addTextInput("Wall", "Wall title", -1); 
+		saveWallTextInput = saveWallGUI->addTextInput("Wall title", "Wall title", -1); 
 		saveWallTextInput->setAutoUnfocus(true);
 		saveWallTextInput->setAutoClear(true);
 		saveWallGUI->setVisible(false);
+		
+		
+		
+		
 	}
 	
-	void update(){
+	void update(int wallSelected){
 		
 		//suppression des modules
 	    for (size_t i = 0; i<modules.size(); i++){
@@ -141,16 +155,18 @@ public:
 		}
 		
 		//sauvegarde du wall
-		if (saveWallGUI->isVisible() && !saveWallTextInput->isClicked() ){
+		if ((saveWallGUI->isVisible() && !saveWallTextInput->isClicked())){
 			saveWallGUI->setVisible(false);
 
-			wall2XML(names.size()-1);//save in xml
-			
-			ofLogNotice() << "create at id : " << names.size()-1;
+			if (wallSelected == -1){
+				wall2XML(names.size()-1);//save in xml
+			} else {
+				wall2XML(wallSelected);
+			}
 			
 			getWallListName();//modify names list depending on the new xml
 			newWallCreated = true;
-		}
+		} 
 	}
 	
 	void draw(){
@@ -159,7 +175,7 @@ public:
 		
 		for (size_t i=0; i < wallButtons.size(); i++)
 			wallButtons[i]->draw();
-		for (size_t i = 0; i<modules.size();i++){
+		for (size_t i = 0; i<modules.size();i++)
     		modules[touchOrder[i]]->draw();
 	}
 	
@@ -215,7 +231,7 @@ public:
 	
 	
 	//-----------------------------------------
-	void touchUp(int x, int y){
+	void touchUp(int x, int y, int wallSelected){
 	
 		for (size_t i=0; i < 4; i++){
 			if (wallButtons[i]->isTouchedUp(x, y)){
@@ -234,7 +250,9 @@ public:
 						//page musique
 						break;
 					case 3://save
-						//TODO: if new wall -> empty else name wall
+						//TODO: if new wall -> empty else nom du wall
+						if (wallSelected!=-1 && wallSelected!=names.size()-1)
+							saveWallTextInput->setTextString(names[wallSelected]);
 						saveWallGUI->setVisible(true);
 						saveWallTextInput->click();
 						break;
@@ -261,7 +279,7 @@ public:
 		bordureY = (((ofGetHeight()-200.0)/GRID_RATIO - (float)((int)((ofGetHeight()-200)/GRID_RATIO)))*GRID_RATIO +25 /*+GRID_RATIO*/) /2;
 		
 		for (int i = 0; i <13; i++){//verticales
-			gridLines[i].set(bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, 50+bordureY-10, bordureX + i*(int)(1.7*GRID_RATIO) /*- (i/2)*/, ofGetHeight() - 120 - bordureY);
+			gridLines[i].set(bordureX + i*(int)(1.7*GRID_RATIO), 50+bordureY-10, bordureX + i*(int)(1.7*GRID_RATIO), ofGetHeight() - 120 - bordureY);
 		}
 		for (int i = 0; i < 9; i++){//horizontales
 			gridLines[i+13].set(bordureX-10, 50+bordureY+i*GRID_RATIO, ofGetWidth() - bordureX+10, 50+bordureY+i*GRID_RATIO);
@@ -283,14 +301,14 @@ public:
 	
 	
 	//---------------WORK IN PROGRESS : save several walls -----------------------//
-		/*bool wallFound = false;
+		bool wallFound = false;
 		if (modSettings.load("walls.xml")){ //si le fichier existe
 			int numTagsWALL = modSettings.getNumTags("WALL");
 			for (int i = 0; i < numTagsWALL; i++){
 	    		modSettings.pushTag("WALL", i);
 	    			if (modSettings.getValue("ID", i) == wallID){ //si le wall existe déjà dans le fichier on modifie le wall existant
 				    				wallFound = true;
-				    				ofLogNotice() << "trouvé";
+
 				    				//on remplace les modifs
 				    				modSettings.setValue("NAME", saveWallTextInput->getTextString());
 				    				modSettings.pushTag("SPLIT");
@@ -312,37 +330,41 @@ public:
 									modSettings.popTag();//("SPLIT")
 									
 									int numTagsMODULES = modSettings.getNumTags("MODULES");
-									for(int i = 0; i<modules.size(); i++){
-										if (i >= numTagsMODULES)
-									        lastTagNumber = modSettings.addTag("MODULES");
-									    modSettings.pushTag("MODULES", i);
-									    modSettings.setValue("ID", modules[i]->getID(), 0);
-									    modSettings.setValue("SIZE", modules[i]->getTypeSize(), 0);
-										modSettings.setValue("TYPE", modules[i]->getTypeMat(), 0);
-										modSettings.addTag("POS");
-										modSettings.pushTag("POS");
-										    modSettings.setValue("X", modules[i]->getPos().x, 0);
-										    modSettings.setValue("Y", modules[i]->getPos().y, 0);
-										modSettings.popTag();
-										modSettings.addTag("POSGRID");
-										modSettings.pushTag("POSGRID");
-										    ofPoint tmpPosGrid = modules[i]->getPosInGrid();
-										    modSettings.setValue("X", tmpPosGrid.x, 0);
-										    modSettings.setValue("Y", tmpPosGrid.y, 0);
-										modSettings.popTag(); 
-									    modSettings.popTag();
+									for(int i = 0; i<numTagsMODULES; i++){ //on supprime tout
+										modSettings.removeTag("MODULES", 0);
+									}
+									
+									for(int i = 0; i<modules.size(); i++){ // on reremplis tout
+										    lastTagNumber = modSettings.addTag("MODULES");
+										    modSettings.pushTag("MODULES", i);
+										    modSettings.setValue("ID", modules[i]->getID(), 0);
+										    modSettings.setValue("SIZE", modules[i]->getTypeSize(), 0);
+											modSettings.setValue("TYPE", modules[i]->getTypeMat(), 0);
+											modSettings.addTag("POS");
+											modSettings.pushTag("POS");
+											    modSettings.setValue("X", modules[i]->getPos().x, 0);
+											    modSettings.setValue("Y", modules[i]->getPos().y, 0);
+											modSettings.popTag();
+											modSettings.addTag("POSGRID");
+											modSettings.pushTag("POSGRID");
+											    ofPoint tmpPosGrid = modules[i]->getPosInGrid();
+											    modSettings.setValue("X", tmpPosGrid.x, 0);
+											    modSettings.setValue("Y", tmpPosGrid.y, 0);
+											modSettings.popTag(); 
+										    modSettings.popTag();
 								    }
 	    			}
 	    		modSettings.popTag();//("WALL")
 	    	}		
+		} else {//walls.xml n'existe pas
+			ofFile newFile(ofToDataPath("walls.xml"), ofFile::ReadWrite);
+			newFile.create();
 		}
 		
 		if (!wallFound){
-			//on créé
-		
-			lastTagNumber	= modSettings.addTag("WALL");
-	    	ofLogNotice() << "on créé : " << lastTagNumber;
-	    	
+			//on créé à la suite ou dans le fichier vide
+			
+			modSettings.addTag("WALL");
 		    modSettings.pushTag("WALL", wallID);
 		    modSettings.addValue("ID", wallID);
 		    modSettings.addValue("NAME", saveWallTextInput->getTextString());
@@ -380,67 +402,22 @@ public:
 		    }
 		    modSettings.popTag();
 		}
+		modSettings.save("walls.xml");
 		
-		//ofSetDataPathRoot("");
-	   	//modSettings.save("/storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml");
-		//modSettings.save("file://192.168.1.17:8000/modules.xml");
-		modSettings.save("walls.xml");*/
-		//---------------------------------------------------------------------
+		/*ofFile tempFile;
+		tempFile.open("walls.xml", ofFile::ReadWrite, false);
+		ofBuffer buff = tempFile.readToBuffer();
+		ofLogNotice("walls.xml info") << buff;*/
 		
-		//pour l'instant on écrase le fichier à chaque fois
-		modSettings.clear();
-	
-	    lastTagNumber= modSettings.addTag("WALL");
-	    
-	    modSettings.pushTag("WALL", 0);
-	    modSettings.setValue("ID", (int)names.size()-1, 0);
-	    modSettings.setValue("NAME", saveWallTextInput->getTextString());
-	    modSettings.addTag("SPLIT");
-		modSettings.pushTag("SPLIT");
-	    for (int i=0; i < splitableModules.size(); i++){
-	    	modSettings.addTag("S");
-		   	modSettings.pushTag("S");
-		    	
-		    	modSettings.addValue("A", splitableModules[i].x);
-		    	modSettings.addValue("B", splitableModules[i].y);
-	    	modSettings.popTag();
-	    }
-		modSettings.popTag();
-		
-	    for(int i = 0; i<modules.size(); i++){
-	
-	        lastTagNumber = modSettings.addTag("MODULES");
-	        modSettings.pushTag("MODULES", i);
-	        	modSettings.setValue("ID", modules[i]->getID(), 0);
-	        	modSettings.setValue("SIZE", modules[i]->getTypeSize(), 0);
-		        modSettings.setValue("TYPE", modules[i]->getTypeMat(), 0);
-		        modSettings.addTag("POS");
-		        modSettings.pushTag("POS");
-		        	modSettings.setValue("X", modules[i]->getPos().x, 0);
-		        	modSettings.setValue("Y", modules[i]->getPos().y, 0);
-		        modSettings.popTag();
-		        modSettings.addTag("POSGRID");
-		        modSettings.pushTag("POSGRID");
-		        	ofPoint tmpPosGrid = modules[i]->getPosInGrid();
-		        	modSettings.setValue("X", tmpPosGrid.x, 0);
-		        	modSettings.setValue("Y", tmpPosGrid.y, 0);
-		        modSettings.popTag(); 
-	        modSettings.popTag();
-	    }
-	    modSettings.popTag();
-		
-		
-		//EDDY
-		modSettings.save("walls.xml"); //save at : /storage/emulated/0/Android/data/cc.openframeworks.wallGUI2/files/modules.xml
 	}
 	
-	void XML2Wall(int wallID){
+	void XML2Wall(int wallID, string pathToServer){
 	
 	    modules.clear();
 	    touchOrder.clear();
 
 		//on enregistre le xml en local
-	    ofFile tempXML;
+	    /*ofFile tempXML;
 	    ofBuffer dataBuffer;
 	    
 	    tempXML.open(ofToDataPath("temp.xml"), ofFile::ReadWrite, false);
@@ -449,14 +426,16 @@ public:
 	    
 	    //on charge le xml
 	    modSettings.load("temp.xml");
-	    tempXML.remove();
+	    tempXML.remove();*/
+	    
+	    //Fichier externe copié localement à l'initialisation
+	    modSettings.load("walls.xml");
 		
 	    int numTagsWALL = modSettings.getNumTags("WALL");
 	    
 	    for (int i = 0; i < numTagsWALL; i++){
 	    	modSettings.pushTag("WALL", i);
-	    	//if (modSettings.getValue("ID", i) == wallID){
-	    		//modSettings.pushTag("WALL");
+	    	if (modSettings.getValue("ID", i) == wallID){ //Si c'est le wall qu'on veut
 		    		int numTagsMODULES = modSettings.getNumTags("MODULES");
 		    		for (int j = 0; j < numTagsMODULES; j++){
 		    			modSettings.pushTag("MODULES", j);
@@ -475,21 +454,17 @@ public:
 			        		
 			        		int tmpID;
 			        		tmpID = modSettings.getValue("ID", j);
-			        		if (IDmodulesCount < tmpID) IDmodulesCount = tmpID;
+			        		if (IDmodulesCount < tmpID) IDmodulesCount = tmpID+1;
 			        		
-			        		modules.push_back(new Module(tmpSize, tmpType, /*IDmodulesCount++*/ tmpID));
+			        		modules.push_back(new Module(tmpSize, tmpType, tmpID));
 		    				modules[j]->setPos(tmpPos.x, tmpPos.y);
 		    				touchOrder.push_back(j);
 		        			
-		    			modSettings.popTag();
-		    			
-		    			
+		    			modSettings.popTag();//modules
 		    		}
-		    	//modSettings.popTag();
-	    	//}
-	    	modSettings.popTag();
+	    	}
+	    	modSettings.popTag();//wall
 	    }
-	    modSettings.popTag();
 	}
 	
 	//fill names depending on a xml file and end with "create a wall"
@@ -501,8 +476,7 @@ public:
 		int numTagsWALL = modSettings.getNumTags("WALL");
 	    for (int i = 0; i < numTagsWALL; i++){
 	    	modSettings.pushTag("WALL", i);
-	    		names.push_back((string)modSettings.getValue("NAME", "", i));
-	    		ofLogNotice() << "name : " << (string)modSettings.getValue("NAME", "", i);
+	    		names.push_back((string)modSettings.getValue("NAME", ""));
 	    	modSettings.popTag();
 	    }
 	    names.push_back("CREATE A NEW WALL");

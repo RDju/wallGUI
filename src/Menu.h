@@ -57,7 +57,7 @@ class Menu{
 			//searchTextInput->setAutoClear(true);
 			
 			//Menu déroulant
-			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth()-5 -50, HEIGHT_BUTTONS/2 - 15, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
+			guiMenuDeroulant = new ofxUICanvas(3.0/4*ofGetWidth()-5 -50, 0-6/*HEIGHT_BUTTONS/2 - 15*/, 1.0/4*ofGetWidth(), HEIGHT_BUTTONS);
 			guiMenuDeroulant->setFont("OpenSans-Regular.ttf");
 			guiMenuDeroulant->setWidgetFontSize(OFX_UI_FONT_LARGE);
 			
@@ -77,7 +77,7 @@ class Menu{
 		
 		}
 		
-		void update(int& wallSelected){
+		void update(int& wallSelected, int pageLevel){
 			
 			//Click on automix
 			if (automixTextInput->isClicked()){
@@ -98,9 +98,9 @@ class Menu{
 			}
 			
 			//Display the "GO" button of the wall list if a wall is selected
-			if (wallList->getSelectedIndeces().size() > 0){
+			if (wallList->getSelectedIndeces().size() > 0 ){
 				wallSelected = wallList->getSelectedIndeces()[0];
-				if (wallSelected != -1 && wallSelected != wallList->toggles.size() -1)
+				if (wallSelected != -1 && wallSelected != wallList->toggles.size() -1 && pageLevel != WALLCREATION_PAGE)
 					menuButtons[6]->setVisible(true);
 				else menuButtons[6]->setVisible(false);
 			}
@@ -109,9 +109,12 @@ class Menu{
 		
 		void updateListWall(vector<string> names){
 			wallList->clearToggles();
+			wallList->getRect()->setHeight(50);
 			wallList->addToggles(names);
 			
 			//guiMenuDeroulant->removeWidget("WALLS");
+			
+			wallList->getRect()->setHeight(50);
 			
 			//wallList->getLabel()->getRect()->setHeight(50);
 			wallList ->setAllowMultiple(false);
