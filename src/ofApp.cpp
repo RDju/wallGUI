@@ -27,8 +27,10 @@ void ofApp::setup(){
 	
 	appMenu = new Menu();
 	appMenu->setup(appWall->names);
+		
+	appSensors = new Sensors(this);
 	
-	loadChannelXml(); //Create demo channels available from xml
+	//loadChannelXml(); //Create demo channels available from xml
 	
 				//Channels demo Home page (not used any more)
 				/*string channelNames[] = {"Jambon", "Les oiseaux", "Claude François", "Abstrait", "Des voitures", "Ez3kiel", "Picasso", "Pantera", "Bisounours", "Lapin", "Cthulhu", "Coquillages"};
@@ -38,7 +40,7 @@ void ofApp::setup(){
 					
 				}*/
 	
-	//Example of personnal channels... TODO: Replace by xml
+	//Example of per*sonnal channels... TODO: Replace by xml
 	string myChannelNames[] = {"Réseaux", "Vacances", "Bouffe"};
 	for (int i=0; i<3;i++){
 		myChannels.push_back(new Channel("channel"+ofToString(i)+".png", myChannelNames[i], "user", rand()%5, i+6));
@@ -151,6 +153,7 @@ void ofApp::update() {
 
 	appMenu->update(wallSelected, pageLevel);
 	OSCcatch();
+	appSensors->update(sender);
 	
 	if (appMenu->wallListAction == -1) {//click on "CREATE A NEW WALL"
 		pageLevel = WALLCREATION_PAGE;
@@ -271,6 +274,9 @@ void ofApp::update() {
     			m.setAddress( "/PLAY/CHANNEL"/*+ofToString(channelSelected)*/);
     			m.addIntArg(channelSelected->ID);
 	        	sender.sendMessage( m );
+	        	
+	        	if (channelSelected->sensorInput > 0) appSensors->isOn = true;
+	        	else appSensors->isOn = false;
     			break;
     			
     		case 12: //preview button in automix
@@ -308,6 +314,7 @@ void ofApp::update() {
     				settingsSliders[i]->setValue((rand()%4) * 25);
     			}
     			moodList->setSelected((rand()%(moodList->toggles.size()-1))+1);
+    			
     			break;
     			
     		case 15: //play automix
@@ -320,6 +327,10 @@ void ofApp::update() {
     			if (moodList->getSelectedIndeces().size() > 0) m.addIntArg((int32_t)moodList->getSelectedIndeces()[0]);//mood number
     			else m.addIntArg(-1); //no mood
 	        	sender.sendMessage( m );
+	        	
+	        	if (settingsSliders[3]->getValue() >0) appSensors->isOn = true;
+    			else appSensors->isOn =false;
+    			
     			break;
     		case 16: //back automix
     			wantToSaveAutomix = false;
@@ -513,8 +524,18 @@ void ofApp::OSCcatch(){
 			tempChannel->previewImage.resize(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
 			tempChannel->imageUrl = rm.getArgAsString(0);
 			ofLogNotice() << "URL : " << rm.getArgAsString(0);
+			
+		} else if(rm.getAddress() == "/lightSensor/value"){
+					
+			appSensors->oscLight( rm.getArgAsInt32(0));
+			
+			ofxOscMessage m;
+			m.setAddress( "/lightSensor/value");
+			m.addIntArg(rm.getArgAsInt32(0));
+			sender.sendMessage( m );
 		}
-	}	
+
+	}
 }
 
 //-----------------------------------------------------------------------
@@ -685,6 +706,13 @@ void ofApp::keyPressed(int key){
 			
 			break;
 	}
+}
+
+//--------------------------------------------------------------
+
+void ofApp::audioReceived(float * input,int bufferSize,int nChannels){
+
+	appSensors->audioReceived(input,bufferSize,nChannels);
 }
 
 void ofApp::exit()

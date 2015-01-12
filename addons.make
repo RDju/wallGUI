@@ -10,3 +10,4 @@ ofxTaskQueue
 ofxSSLManager
 ofxMediaType
 ofxIO
+ofxOpenCv

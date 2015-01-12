@@ -11,6 +11,8 @@
 #include "ofxGui.h"
 #include "ofxUI.h"
 #include "ofxHTTP.h"
+#include "ofxOpenCv.h"	
+
 
 #include "ofMain.h"
 #include "Button.h"
@@ -18,6 +20,7 @@
 #include "Channel.h"
 #include "Menu.h"
 #include "Wall.h"
+#include "Sensors.h"
 
 
 //#define WALLNUMBER 1 
@@ -65,7 +68,8 @@ public:
 
 	void OSCcatch();
 	void loadChannelXml();
-	
+
+	void audioReceived(	float * input,int bufferSize,int nChannels);
 	//bool isInVector(vector<int> pagesVector, int value);
 
 	
@@ -103,6 +107,7 @@ public:
 	
 	Menu *appMenu;
 	Wall *appWall;
+	Sensors *appSensors;
 	
 	void exit(); 
 	
