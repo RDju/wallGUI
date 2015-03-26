@@ -5,6 +5,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import cc.openframeworks.OFAndroid;
+import android.content.Intent;
 
 public class OFActivity extends cc.openframeworks.OFActivity{
 
@@ -83,6 +84,12 @@ public class OFActivity extends cc.openframeworks.OFActivity{
     	//  you can add or remove menu options from here
     	return  super.onPrepareOptionsMenu(menu);
     }
+    
+    /*public float returnValue(){
+    	int level = intent.getIntExtra("level", 0);
+		return level;
+    	
+    }*/
 }
 
 

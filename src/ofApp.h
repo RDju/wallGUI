@@ -12,6 +12,7 @@
 #include "ofxUI.h"
 #include "ofxHTTP.h"
 #include "ofxOpenCv.h"	
+#include "ofxAruco.h"
 
 
 #include "ofMain.h"
@@ -25,7 +26,7 @@
 
 //#define WALLNUMBER 1 
 #define PORT 9999
-#define RECEIVEPORT 9003
+#define RECEIVEPORT 9010
 #define HTTPPORT 8000
 
 //default size of buttons
@@ -65,6 +66,7 @@ public:
 	bool backPressed();
 	void okPressed();
 	void cancelPressed();
+	void batteryInfo();
 
 	void OSCcatch();
 	void loadChannelXml();
@@ -112,13 +114,22 @@ public:
 	void exit(); 
 	
 	
+	
+	/*jclass javaClass;
+	jobject javaObject;*/
+	
+	int batteryCapacity;
+	int batteryStatus;
+	int batteryTimeToFull;
+	int batteryTimeToEmpty;
+	
 private:
 	vector<ofxOscSender> senders;
 	ofxOscReceiver receiver;
 	ofxOscSender sender;
 	
 	//IP of each wall server (only one wall working for the moment)
-	string hosts[2] = {"192.168.1.13", "192.168.1.182"};
+	string hosts[2] = {"192.168.1.10", "192.168.1.182"};
 	
 	string pathToServer = "http://" + hosts[0] + ":" + ofToString(HTTPPORT) + "/";
 	

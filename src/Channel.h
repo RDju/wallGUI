@@ -234,7 +234,8 @@ class Channel{
 		    modSettings.pushTag("channel");
 				    creator = modSettings.getValue("by", "error");
 				    price = modSettings.getValue("price", "error");
-					imageUrl = "http://192.168.1.13:8000/wallChannels/"+modSettings.getValue("playfolder", "error")+"/image/1.jpg";
+				    //TODO: change ip
+					imageUrl = "http://192.168.1.12:8000/wallChannels/"+modSettings.getValue("playfolder", "error")+"/image/1.jpg";
 					description = modSettings.getValue("blurb", "error");
 					tagsString = modSettings.getValue("keyword", "error");
 					title = modSettings.getValue("title", "error");

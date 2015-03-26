@@ -1,11 +1,12 @@
 #include "ofApp.h"
-//#include <jni.h>
+#include <string>
+#include "dirent.h"
 
 using namespace std;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-
+		
 	//init graphics
 	background.loadImage("bckgrimgWhite.png");
 	ofEnableAlphaBlending();
@@ -40,7 +41,7 @@ void ofApp::setup(){
 					
 				}*/
 	
-	//Example of per*sonnal channels... TODO: Replace by xml
+	//Example of personnal channels... TODO: Replace by xml
 	string myChannelNames[] = {"Réseaux", "Vacances", "Bouffe"};
 	for (int i=0; i<3;i++){
 		myChannels.push_back(new Channel("channel"+ofToString(i)+".png", myChannelNames[i], "user", rand()%5, i+6));
@@ -70,7 +71,7 @@ void ofApp::setup(){
 	//Buttons
 	//Channel display
 	GUIbuttons.push_back(new Button("back", 10, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , CHANNELDISPLAY_PAGE, "BACK", "BACK", 40));
-	GUIbuttons.push_back(new Button("play", 11, 25+1.0/2*2.0/5*ofGetWidth(), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , CHANNELDISPLAY_PAGE, "PAUSE", "PLAY", 40));
+	GUIbuttons.push_back(new Button("play", 11, 25+1.0/2*2.0/5*ofGetWidth(), ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , CHANNELDISPLAY_PAGE, "PLAY", "PLAY", 40));
 	
 	//Automix
 	GUIbuttons.push_back(new Button("preview", 12, 25, ofGetHeight() - HEIGHT_BUTTONS*2 - 25, 1.0/2*2.0/5*ofGetWidth()-10, HEIGHT_BUTTONS , AUTOMIX_PAGE, "PREVIEW", "PREVIEW", 40));
@@ -151,6 +152,23 @@ void ofApp::loadChannelXml(){
 //--------------------------------------------------------------
 void ofApp::update() {
 
+	batteryInfo();
+	
+	//sleep(300);
+	
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir ("/")) != NULL) {
+	  while ((ent = readdir (dir)) != NULL) {
+	    ofLogNotice("dir") << ent->d_name;
+	  }
+	  closedir (dir);
+	} else {
+	  perror ("");
+	}
+					
+					
+		
 	appMenu->update(wallSelected, pageLevel);
 	OSCcatch();
 	appSensors->update(sender);
@@ -271,9 +289,10 @@ void ofApp::update() {
     			break;
     		
     		case 11://play channel button
-    			m.setAddress( "/PLAY/CHANNEL"/*+ofToString(channelSelected)*/);
-    			m.addIntArg(channelSelected->ID);
-	        	sender.sendMessage( m );
+    			
+	    			m.setAddress( "/PLAY/CHANNEL"/*+ofToString(channelSelected)*/);
+	    			m.addIntArg(channelSelected->ID);
+		        	sender.sendMessage( m );
 	        	
 	        	if (channelSelected->sensorInput > 0) appSensors->isOn = true;
 	        	else appSensors->isOn = false;
@@ -414,7 +433,9 @@ void ofApp::draw() {
 
     background.draw(0, 0);
     
-    switch (pageLevel){
+    appSensors->draw();
+    
+    switch (/*pageLevel*/354){
     	case HOME_PAGE:
     		//if (slide == 0){
 	    		for(int i=0; i<demoChannelNumber; i++){
@@ -505,10 +526,42 @@ void ofApp::draw() {
     		break;
     		
     }
-    appMenu->draw();
+   // appMenu->draw();
 }
 
 //--------------------------------------------------------------
+
+void ofApp::batteryInfo(){
+
+	string delimiter = "=";
+
+	ofFile tempFile;
+	tempFile.open("/sys/class/power_supply/battery/uevent", ofFile::ReadOnly, false);
+	ofBuffer buff = tempFile.readToBuffer();
+	while(!buff.isLastLine()){
+		string text = buff.getNextLine();
+		string token = text.substr(0, text.find(delimiter));
+		if (token == "POWER_SUPPLY_CAPACITY"){
+			batteryCapacity = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
+		} else if (token == "POWER_SUPPLY_STATUS"){
+			if (text.substr(text.find(delimiter) +1 , text.size()).c_str()=="Not charging") batteryStatus = 0;
+			else batteryStatus = 1;
+		} else if (token == "POWER_SUPPLY_TIME_TO_EMPTY_NOW"){
+			batteryTimeToFull = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
+		} else if (token == "POWER_SUPPLY_TIME_TO_FULL_NOW"){
+			batteryTimeToEmpty = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
+		}
+	}
+	
+	ofxOscMessage m;
+	m.setAddress( "/battery");
+	m.addIntArg(batteryCapacity);
+	m.addIntArg(batteryStatus);
+	m.addIntArg(batteryTimeToFull);
+	m.addIntArg(batteryTimeToEmpty);
+	sender.sendMessage( m );
+	
+}
 
 void ofApp::OSCcatch(){
 	ofxOscMessage rm; 
@@ -602,7 +655,8 @@ void ofApp::touchDown(int x, int y, int id){
 
 //--------------------------------------------------------------
 void ofApp::touchUp(int x, int y, int id){
-	
+
+		appSensors->onTouchUp();
 	
 		//------  Regarde si un bouton a été actionné et récupère l'ID si c'est le cas --------------
 		

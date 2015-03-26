@@ -11,3 +11,4 @@ ofxSSLManager
 ofxMediaType
 ofxIO
 ofxOpenCv
+ofxAruco

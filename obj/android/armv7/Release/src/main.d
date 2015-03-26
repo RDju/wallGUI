@@ -521,7 +521,7 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxHTTP/libs/ofxHTTP/include/ofx/HTTP/DefaultClientTask.h \
  ../../../addons/ofxOpenCv/src/ofxOpenCv.h \
  ../../../addons/ofxOpenCv/src/ofxCvConstants.h \
- ../../../addons/ofxOpenCv/libs/opencv/include/opencv/cv.h \
+ ../../../addons/ofxOpenCv/src/cv.h \
  ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/core_c.h \
  ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/types_c.h \
  ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/core.hpp \
@@ -579,8 +579,26 @@ obj/android/armv7/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxOpenCv/src/ofxCvFloatImage.h \
  ../../../addons/ofxOpenCv/src/ofxCvShortImage.h \
  ../../../addons/ofxOpenCv/src/ofxCvContourFinder.h \
- ../../../addons/ofxOpenCv/src/ofxCvHaarFinder.h src/Button.h \
- src/Module.h src/Channel.h src/Menu.h src/Wall.h src/Sensors.h
+ ../../../addons/ofxOpenCv/src/ofxCvHaarFinder.h \
+ ../../../addons/ofxAruco/src/ofxAruco.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/boarddetector.h \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/opencv.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/video/video.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/video/background_segm.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/ml/ml.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/highgui/highgui_c.h \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/highgui/highgui.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/contrib.hpp \
+ ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/retina.hpp \
+ /home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/valarray \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/exports.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/board.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/marker.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/cameraparameters.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/markerdetector.h \
+ ../../../addons/ofxAruco/libs/aruco-1.2.4/src/markerdetector.h \
+ src/Button.h src/Module.h src/Channel.h src/Menu.h src/Wall.h \
+ src/Sensors.h ../../../libs/openFrameworks/graphics/ofBitmapFont.h
 
 ../../../libs/openFrameworks/ofMain.h:
 
@@ -1630,7 +1648,7 @@ src/ofApp.h:
 
 ../../../addons/ofxOpenCv/src/ofxCvConstants.h:
 
-../../../addons/ofxOpenCv/libs/opencv/include/opencv/cv.h:
+../../../addons/ofxOpenCv/src/cv.h:
 
 ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/core_c.h:
 
@@ -1748,6 +1766,40 @@ src/ofApp.h:
 
 ../../../addons/ofxOpenCv/src/ofxCvHaarFinder.h:
 
+../../../addons/ofxAruco/src/ofxAruco.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/boarddetector.h:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/opencv.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/video/video.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/video/background_segm.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/ml/ml.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/highgui/highgui_c.h:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/highgui/highgui.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/contrib.hpp:
+
+../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/retina.hpp:
+
+/home/julie/programmes/android-ndk-r9b/sources/cxx-stl/gnu-libstdc++/4.8/include/valarray:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/exports.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/board.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/marker.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/cameraparameters.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/markerdetector.h:
+
+../../../addons/ofxAruco/libs/aruco-1.2.4/src/markerdetector.h:
+
 src/Button.h:
 
 src/Module.h:
@@ -1759,3 +1811,5 @@ src/Menu.h:
 src/Wall.h:
 
 src/Sensors.h:
+
+../../../libs/openFrameworks/graphics/ofBitmapFont.h:
